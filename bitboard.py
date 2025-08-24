@@ -212,16 +212,54 @@ init_Bishop_blocker_subset_build()
 #===========================================================================================
 
 #==========================================Generate attack=================================================
+"""Creating all the possible attack bitboard from each square for sliding pieces based on blocker subset"""
 
-
-            
-
-        
+ROOK_ATTACKS = [[] for i in range(64)]
+def Rook_attack():
+    directions = [(1,0),(-1,0),(0,1),(0,-1)]
+    for square in range(64):
+        attack_subset = ROOK_BLOCKER_SUBSET[square]
+        for blocker_subset in attack_subset:
+            x = square % 8
+            y = square // 8
+            mask = 0
+            for dx,dy in directions:
+                cx = x + dx
+                cy = y + dy
+                while ((0 <= cx < 8) and (0 <= cy < 8)):
+                    mask |= (1 << (cx + cy*8))
+                    if (blocker_subset & (1 << (cx + (cy*8)))): 
+                        break
+                    cx += dx
+                    cy += dy
+            ROOK_ATTACKS[square].append(mask)    
     
+BISHOP_ATTACKS = [[] for i in range(64)]
+def Bishop_attack():
+    directions = [(1,1),(-1,-1),(1,-1),(-1,1)]
+    for square in range(64):
+        attack_subset = BISHOP_BLOCKER_SUBSET[square]
+        for blocker_subset in attack_subset:
+            x = square % 8
+            y = square // 8
+            mask = 0
+            for dx,dy in directions:
+                cx = x + dx
+                cy = y + dy
+                while ((0 <= cx < 8) and (0 <= cy < 8)):
+                    mask |= (1 << (cx + cy*8))
+                    if (blocker_subset & (1 << (cx + (cy*8)))): 
+                        break
+                    cx += dx
+                    cy += dy
+            BISHOP_ATTACKS[square].append(mask)
 
-
-
-        
+""" QUEEN --> Will combine both Bishop and Rook attacks"""
+""" Making Queen subset will make millions of attacks  """
+    
+Rook_attack()
+Bishop_attack()
+#print()
 
         
 
