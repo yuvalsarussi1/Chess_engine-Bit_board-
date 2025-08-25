@@ -27,9 +27,15 @@ class Board:
         ALL_OCCUPANCY = BLACK_OCCUPANCY | WHITE_OCCUPANCY
 
 
-    def Piece_existence_check(bit_index: int,OCCUPANCY_list: int) -> bool:
-        #Check for existence in specific Bit Index
-        return f"Piece existence:{bit_index & OCCUPANCY_list != 0}"
+    def piece_exists(bit_index: int, occupancy: int) -> bool:
+        """Check if a piece exists at the given bit index in the occupancy bitboard."""
+        return (occupancy & (1 << bit_index)) != 0
+    
+    def Move_execute():
+        pass
+
+    def print_board():
+        pass
 
 
      

@@ -1,4 +1,6 @@
-def Coord_converter(square : str) -> int: #Take coord (a2) turn into Bit index
+
+
+def Coord_converter(square : str) -> int: #change to enter both piece and target in one input
         if len(square) == 2:
             file = ord(square[0].lower()) - ord("a")
             if (0 <= file <= 7) and (square[1].isdigit()):   
@@ -8,4 +10,7 @@ def Coord_converter(square : str) -> int: #Take coord (a2) turn into Bit index
                     return 1 << index
                 return 0       
             return 0 
-        return False      
+        return False
+
+def Check_for_friendly_target():
+     pass      
