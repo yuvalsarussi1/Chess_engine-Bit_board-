@@ -1,7 +1,148 @@
-from bitboard import ROOK_ATTACKS,BISHOP_ATTACKS,ROOK_BLOCKER_SUBSET,BISHOP_BLOCKER_SUBSET
+from bitboard import *
+import random
+ROOK_RELEVANT_BITS = [
+    [12,11,11,11,11,11,11,12],
+    [11,14,14,14,14,14,14,11],
+    [11,14,14,14,14,14,14,11],
+    [11,14,14,14,14,14,14,11],
+    [11,14,14,14,14,14,14,11],
+    [11,14,14,14,14,14,14,11],
+    [11,14,14,14,14,14,14,11],
+    [12,11,11,11,11,11,11,12],
+]
 
+BISHOP_RELEVANT_BITS = [
+    [6, 5, 5, 5, 5, 5, 5, 6],
+    [5, 7, 7, 7, 7, 7, 7, 5],
+    [5, 7, 9, 9, 9, 9, 7, 5],
+    [5, 7, 9, 9, 9, 9, 7, 5],
+    [5, 7, 9, 9, 9, 9, 7, 5],
+    [5, 7, 9, 9, 9, 9, 7, 5],
+    [5, 7, 7, 7, 7, 7, 7, 5],
+    [6, 5, 5, 5, 5, 5, 5, 6],
+]
+
+MAGIC_NUMBER_ROOK = [
+    4611694814588043264,   2305915576981692416,   9007200328482828,
+    36033199360450704,     18157340658245760,     576742227290620240,
+    40611844951377922,     1348863642681999626,   2251804645556228,
+    1514398046917050400,   17592722915332,        9223374519345894480,
+    2308103639632199712,   333586364668870916,    360855318324838528,
+    140806744733696,       1161086427598848,      162129655305414656,
+    9254915103458067492,   4612816453828104192,   362539770271956992,
+    
+    2332864609125663856,   5911579027898369,      2251799948951552,
+    1152925902806450182,   724243924071751808,    2305843009214808084,
+    688404824088,          1729667855256913040,   1306070426278969600,
+    2305891457661435904,   18051236443996160,     576460889742385312,
+    4576168477069824,      110343742182933514,    39651139125248,
+    70386762941186,        4899925328113172512,   22518135576336905,
+    74345677735346432,     35184372114248,        505952510809210880,
+    
+    1152921792403227168,   144115329816199312,    9042390606414100,
+    4510213895356420,      2386916598599385616,   576610288032285184,
+    725502027416731904,    5664716216205568,      1109830666312,
+    72095527927382657,     4629771481465750536,   4510747266646016,
+    1154064996716847104,   18156652189450244,     4629700421248614403,
+    44590358859952,        1155175503712650258,   2382967165717316616,
+    1152926456709423108,   576742228421509249,    845662572775552,
+    70952993964048
+]
+
+
+MAGIC_NUMBER_BISHOP = [
+    2273825228194818,     1154611524041971716, 9989173708520431620,
+    144680371684905634,   288230376158003968,  576460786864947281,
+    72941601462157328,    578738974911381504,  1189513321374547972,
+    2377918231944889344,  9263908831618925568, 13836271505916104,
+    1175519252034158624,  220957856986365968,  288230376168817664,
+    10952825212936126528, 40620909480149185,   9241386712528323074,
+    9403516606065149312,  580970949000564736,  303993249726464576,
+    
+    27303640752982017,    144115189149728864,  36028799755763712,
+    2305845230252851712,  252299027646791680,  1126999821652016,
+    756605425398398980,   306323943810138368,  9511638158962332160,
+    18017697591721995,    91809229963330,      1152922621308831769,
+    2599153150594129952,  37296052965085480,   72127962871235712,
+    2884696301781450761,  290587870820892773,  4621959855077326848,
+    446560394148840449,   6896205653082112,    144680337086087174,
+    
+    40673718252339586,    73336363642521344,   144117689898567680,
+    4611688082293555207,  11541036995098861696,576531121186144328,
+    18226707626611264,    721279632540688,     9243708603922649088,
+    432345564504399876,   10376295741021766848,4612251203978438656,
+    144313152245366788,   72127962849214848,   879613598241792,
+    1236239751276139200,  9183258621247492,    20268470378562576,
+    72620763038876672,    141013484077056,     109212428402688544,
+    13835058055819034624
+]
+
+#=================================================ONE TIME USE/CREAT THE MAGIC NUMBER ABOVE=================================================
+#=============================ROOK=======================
 MAGIC_NUMBER_ROOK = [0]*64
-def init_Creat_magic_num():
-    num_check = 0xf35f63730b209219
-    
-    
+def init_Test_magic_rook(square :int, magic :int):
+    used = {}
+    row = square // 8
+    col = square % 8    
+    for subset, attack in zip(ROOK_BLOCKER_SUBSET[square],ROOK_ATTACKS[square]):
+        index = (subset * magic) >> (64 - ROOK_RELEVANT_BITS[row][col])
+        if index in used and used[index] != attack:
+            return False  
+        used[index] = attack
+    return True
+
+def init_Creat_magic_num_rook(square: int,magic :int):  
+    global MAGIC_NUMBER_ROOK
+    if init_Test_magic_rook(square, magic):
+        MAGIC_NUMBER_ROOK[square] = magic
+        print("Magic for rook ",square,"works!")
+        return True
+    else:
+        print("Collision found, try another number")
+        return False
+
+def Generate_magic_num_rook():
+    for square in range(64):
+        while True:
+            magic_num = random.getrandbits(64) & random.getrandbits(64) & random.getrandbits(64)  
+            if init_Creat_magic_num_rook(square,magic_num):
+                break
+
+# Generate_magic_num_rook()
+# for i in MAGIC_NUMBER_ROOK:
+#     print(i)
+
+#=============================BISHOP=======================
+MAGIC_NUMBER_BISHOP = [0]*64
+def init_Test_magic_bishop(square :int, magic :int):
+    used = {}
+    row = square // 8
+    col = square % 8    
+    for subset, attack in zip(BISHOP_BLOCKER_SUBSET[square],BISHOP_ATTACKS[square]):
+        index = (subset * magic) >> (64 - BISHOP_RELEVANT_BITS[row][col])
+        if index in used and used[index] != attack:
+            return False  
+        used[index] = attack
+    return True
+
+def init_Creat_magic_num_bishop(square: int,magic :int):  
+    global MAGIC_NUMBER_BISHOP
+    if init_Test_magic_bishop(square, magic):
+        MAGIC_NUMBER_BISHOP[square] = magic
+        print("Magic for bishop ",square,"works!")
+        return True
+    else:
+        print("Collision found, try another number")
+        return False
+
+def Generate_magic_num_bishop():
+    for square in range(64):
+        while True:
+            magic_num = random.getrandbits(64) & random.getrandbits(64) & random.getrandbits(64)  
+            if init_Creat_magic_num_bishop(square,magic_num):
+                break    
+
+# Generate_magic_num_bishop()
+# for i in MAGIC_NUMBER_BISHOP:
+#     print(i)
+#================================================================================================================================================
