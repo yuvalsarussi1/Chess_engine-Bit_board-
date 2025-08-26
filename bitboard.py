@@ -9,6 +9,7 @@ pieces = ["P", "N", "B", "R", "Q", "K","p", "n", "b", "r", "q", "k"]
 #Piece that hold all pieces squares
 PIECE_DICT = {piece: 0 for piece in pieces}
 
+PIECES_TURN = []
 #Row pieces for occupancy squars
 WHITE_ROW1_PIECES = ["R","N","B","Q","K","B","N","R"]
 BLACK_ROW1_PIECES = ["r","n","b","q","k","b","n","r"]
@@ -122,13 +123,7 @@ def init_Queen_mask():
                 cx += dx
                 cy += dy
 
-init_Knight_mask()
-init_Pawn_mask()
-init_King_mask()
-init_Rook_mask()
-init_Bishop_mask()
-init_Queen_mask()
-#print()
+
 #===========================================================================================
 
 #==========================================Exclude Edges Pieces Mask=================================================
@@ -174,9 +169,7 @@ def init_Queen_exclude_edges():
     for i in range(64):
         QUEEN_EXCLUDE_EDGES[i] = ROOK_EXCLUDE_EDGES[i] | BISHOP_EXCLUDE_EDGES[i]
 
-init_Rook_exclude_edges()
-init_Bishop_exclude_edges()
-#print()
+
 #===========================================================================================
 
 #==========================================blocker subsets=================================================
@@ -206,9 +199,7 @@ def init_Bishop_blocker_subset_build():
 """ QUEEN --> Will combine both Bishop and Rook subset"""
 """ Making Queen subset will make millions of subset  """
 
-init_Rook_blocker_subset_build()
-init_Bishop_blocker_subset_build()
-#print()
+
 #===========================================================================================
 
 #==========================================Generate attack=================================================
@@ -257,9 +248,7 @@ def Bishop_attack():
 """ QUEEN --> Will combine both Bishop and Rook attacks"""
 """ Making Queen subset will make millions of attacks  """
     
-Rook_attack()
-Bishop_attack()
-#print()
+
 
         
 
