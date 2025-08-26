@@ -1,4 +1,4 @@
-from bitboard import *
+import bitboard as b
 import random
 ROOK_RELEVANT_BITS = [
     [12,11,11,11,11,11,11,12],
@@ -84,7 +84,7 @@ def init_Test_magic_rook(square :int, magic :int):
     used = {}
     row = square // 8
     col = square % 8    
-    for subset, attack in zip(ROOK_BLOCKER_SUBSET[square],ROOK_ATTACKS[square]):
+    for subset, attack in zip(b.ROOK_BLOCKER_SUBSET[square],b.ROOK_ATTACKS[square]):
         index = (subset * magic) >> (64 - ROOK_RELEVANT_BITS[row][col])
         if index in used and used[index] != attack:
             return False  
@@ -118,7 +118,7 @@ def init_Test_magic_bishop(square :int, magic :int):
     used = {}
     row = square // 8
     col = square % 8    
-    for subset, attack in zip(BISHOP_BLOCKER_SUBSET[square],BISHOP_ATTACKS[square]):
+    for subset, attack in zip(b.BISHOP_BLOCKER_SUBSET[square],b.BISHOP_ATTACKS[square]):
         index = (subset * magic) >> (64 - BISHOP_RELEVANT_BITS[row][col])
         if index in used and used[index] != attack:
             return False  

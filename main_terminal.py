@@ -25,17 +25,41 @@ while True:#========================Game_oop==================
     
     Update_PIECES_TURN(side)
 
-    coord = input ("Choose piece:")
-    coord = coord_converter_num(coord)
-    if coord is False:
+    from_sq = input ("Choose piece:")
+    from_sq = coord_converter_num(from_sq)
+    if from_sq is False:
         print("Invalid Input")
         continue
 
-    valid = Valid_piece(coord,side)
+    valid = Valid_piece(from_sq,side)
     if valid is False:
-        print("Enemy piece!")
+        print("Error move")
         continue
 
+    to_sq = input ("Choose square:")
+    to_sq = coord_converter_num(to_sq)
+    if to_sq is False:
+        print("Invalid Input")
+        continue
+
+    Attacks = Piece_select(from_sq)
+    print(bin(Attacks),"check")
+    Attacks = Valid_attack(Attacks,to_sq)
+    print(Attacks,"check_2")
+    if Attacks is False:
+        print("Invalid move")
+        continue
+
+    Friendly = Check_for_friendly_target(from_sq,to_sq)
+    if Friendly is False:
+        print("Target square is friendly")
+        continue
+            ### problem with rook attack def 
+
+    
+
+
+    
 
 
     

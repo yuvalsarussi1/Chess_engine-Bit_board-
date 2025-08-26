@@ -26,6 +26,11 @@ class Board:
                             b.PIECE_DICT["r"] | b.PIECE_DICT["q"] | b.PIECE_DICT["k"])
         b.ALL_OCCUPANCY   = b.BLACK_OCCUPANCY | b.WHITE_OCCUPANCY
         
+    def Square_map_update():
+        pass
+
+
+
 
     def piece_exists(bit_index: int, occupancy: int) -> bool:
         """Check if a piece exists at the given bit index in the occupancy bitboard."""
@@ -35,11 +40,15 @@ class Board:
         square_index = (1 << square_num)
         target_index = (1 << target)
         
-        PIECE_DICT[attack_name] &= ~square_index
-        PIECE_DICT[attack_name] |=target_index
+        b.PIECE_DICT[attack_name] &= ~square_index
+        b.PIECE_DICT[attack_name] |=target_index
+
+        b.SQUARE_MAP[target] = b.SQUARE_MAP[square_num]
+        b.SQUARE_MAP[square_num] = "." 
+
     def Remove_target(target: int,target_name: str):
         target_index = (1 << target)
-        PIECE_DICT[target_name] &= ~ target_index
+        b.PIECE_DICT[target_name] &= ~ target_index
         
 
         

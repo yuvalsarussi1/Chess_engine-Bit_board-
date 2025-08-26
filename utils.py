@@ -30,10 +30,10 @@ def Check_for_friendly_target(square_num: int,target: int) -> bool:
     square_index = (1 << square_num)
     target_index = (1 << target)
      
-    if (square_index & WHITE_OCCUPANCY) and (target_index & WHITE_OCCUPANCY):
+    if (square_index & b.WHITE_OCCUPANCY) and (target_index & b.WHITE_OCCUPANCY):
           return False
      
-    if (square_index & BLACK_OCCUPANCY) and (target_index & BLACK_OCCUPANCY):
+    if (square_index & b.BLACK_OCCUPANCY) and (target_index & b.BLACK_OCCUPANCY):
           return False
      
     return True
@@ -42,10 +42,10 @@ def Check_for_friendly_target(square_num: int,target: int) -> bool:
 def Update_PIECES_TURN(side: bool):
     global PIECES_TURN
     if side == "w":
-          PIECES_TURN = ["P","R","N","B","Q","K"]
+          b.PIECES_TURN = ["P","R","N","B","Q","K"]
     
     if side == "b":
-          PIECES_TURN = ["p","r","n","b","q","k"]
+          b.PIECES_TURN = ["p","r","n","b","q","k"]
     
 def Valid_piece(square_num: int,side) -> bool:
      square_index = (1 << square_num)
@@ -54,7 +54,7 @@ def Valid_piece(square_num: int,side) -> bool:
           return True
      if side == "b" and square_index & b.BLACK_OCCUPANCY:
           return True
-     else: 
+     else:    
         return False
     
 

@@ -8,7 +8,6 @@ BIT_BOARD[3] =0xff00000000000000  #BLACK_FIRST_ROW
 pieces = ["P", "N", "B", "R", "Q", "K","p", "n", "b", "r", "q", "k"]
 #Piece that hold all pieces squares
 PIECE_DICT = {piece: 0 for piece in pieces}
-
 PIECES_TURN = []
 #Row pieces for occupancy squars
 WHITE_ROW1_PIECES = ["R","N","B","Q","K","B","N","R"]
@@ -26,6 +25,23 @@ CASTLING_BLACK_QUEEN = 0xe00000000000000
 
 LIGHT_SQUARE = 0x55aa55aa55aa55aa
 DARK_SQUARE = 0xaa55aa55aa55aa55
+
+
+SQUARE_MAP = [
+    "R","N","B","Q","K","B","N","R",
+    "P","P","P","P","P","P","P","P",
+    ".",".",".",".",".",".",".",".",
+    ".",".",".",".",".",".",".",".",
+    ".",".",".",".",".",".",".",".",
+    ".",".",".",".",".",".",".",".",
+    "p","p","p","p","p","p","p","p",
+    "r","n","b","q","k","b","n","r",
+]
+
+
+
+
+
 
 
 #==========================================General Pieces Mask=================================================
