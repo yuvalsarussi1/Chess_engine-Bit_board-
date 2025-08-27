@@ -49,7 +49,7 @@ def Update_PIECES_TURN(side: bool):
     
 def Valid_piece(square_num: int,side) -> bool:
      square_index = (1 << square_num)
-     print("check", b.WHITE_OCCUPANCY)
+    #  print("check", b.WHITE_OCCUPANCY)
      if side == "w" and square_index & b.WHITE_OCCUPANCY:
           return True
      if side == "b" and square_index & b.BLACK_OCCUPANCY:
@@ -65,3 +65,12 @@ def Side_pick(side):
           return "b"
      else:
           return False
+     
+def Side_change(side):
+    if side == "w":
+        new_side = "b"
+    if side == "b":
+        new_side = "w"
+    return new_side
+
+        

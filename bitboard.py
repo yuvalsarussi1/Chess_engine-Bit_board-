@@ -1,3 +1,5 @@
+import magic as m
+
 BIT_BOARD = [None,None,None,None] 
 #Start occupancy squars
 BIT_BOARD[0] =0xff00              #WHITE_PAWN
@@ -39,11 +41,6 @@ SQUARE_MAP = [
 ]
 
 
-
-
-
-
-
 #==========================================General Pieces Mask=================================================
 
 """Creating all the walkable squares from each square for every piece """
@@ -72,25 +69,39 @@ def init_King_mask():
             if (0 <= dx + x < 8) and (0 <= dy + y < 8):
                 KING_MASK[num] |= (1 << (dy + y)*8 + (dx + x))
 
-PAWN_MASK_WALK = [0]*64
-PAWN_MASK_EAT = [0]*64
-PAWN_MASK_ENPASSANT = [0]*64
+PAWN_MASK_WALK_WHITE = [0]*64
+PAWN_MASK_EAT_WHITE  = [0]*64
+PAWN_MASK_ENPASSANT_WHITE = [0]*64
+PAWN_MASK_DOUBLE_WHITE = [0]*64
+
+PAWN_MASK_WALK_BLACK = [0]*64
+PAWN_MASK_EAT_BLACK  = [0]*64
+PAWN_MASK_ENPASSANT_BLACK = [0]*64
+PAWN_MASK_DOUBLE_BLACK = [0]*64
 def init_Pawn_mask():
-    jumps_walk = (0,1)
-    jump_eat = [(1,1),(-1,1)]
-    jump_enpassant = (0,2)
     for num in range(64):
         x = num % 8
         y = num // 8
-        ax,ay = jumps_walk
-        if (0 <= ax + x < 8) and (0 <= ay + y < 8):
-            PAWN_MASK_WALK[num] |= (1 << (ay + y)*8 + (ax + x))
-        bx,by = jump_enpassant
-        if (0 <= bx + x < 8) and (0 <= by + y < 8):
-            PAWN_MASK_ENPASSANT[num] |= (1 << (by + y)*8 + (bx + x))
-        for cx,cy in jump_eat:
-            if (0 <= cx + x < 8) and (0 <= cy + y < 8):
-                PAWN_MASK_EAT[num] |= (1 << (cy + y)*8 + (cx + x))
+        if y < 7:
+            PAWN_MASK_WALK_WHITE[num] |= (1 << ((y+1)*8 + x))
+            if y == 1:
+                PAWN_MASK_ENPASSANT_WHITE[num] |= (1 << ((y+2)*8 + x))
+                PAWN_MASK_DOUBLE_WHITE[num] |= (1 << ((y+2)*8 + x))
+            if x > 0:
+                PAWN_MASK_EAT_WHITE[num] |= (1 << ((y+1)*8 + (x-1)))
+            if x < 7:
+                PAWN_MASK_EAT_WHITE[num] |= (1 << ((y+1)*8 + (x+1)))
+            
+        
+        if y > 0:
+            PAWN_MASK_WALK_BLACK[num] |= (1 << ((y-1)*8 + x))
+            if y == 6:
+                PAWN_MASK_ENPASSANT_BLACK[num] |= (1 << ((y-2)*8 + x))
+                PAWN_MASK_DOUBLE_BLACK[num] |= (1 << ((y-2)*8 + x))
+            if x > 0:
+                PAWN_MASK_EAT_BLACK[num] |= (1 << ((y-1)*8 + (x-1)))
+            if x < 7:
+                PAWN_MASK_EAT_BLACK[num] |= (1 << ((y-1)*8 + (x+1)))
         
 ROOK_MASK = [0]*64
 def init_Rook_mask():
@@ -222,11 +233,13 @@ def init_Bishop_blocker_subset_build():
 """Creating all the possible attack bitboard from each square for sliding pieces based on blocker subset"""
 
 ROOK_ATTACKS = [[] for i in range(64)]
-def Rook_attack():
+def init_Rook_attack():
     directions = [(1,0),(-1,0),(0,1),(0,-1)]
     for square in range(64):
-        attack_subset = ROOK_BLOCKER_SUBSET[square]
-        for blocker_subset in attack_subset:
+        row, col = divmod(square, 8)
+        num_entries = 1 << m.ROOK_RELEVANT_BITS[row][col]  
+        ROOK_ATTACKS[square] = [0] * num_entries     
+        for blocker_subset in ROOK_BLOCKER_SUBSET[square]:
             x = square % 8
             y = square // 8
             mask = 0
@@ -239,14 +252,17 @@ def Rook_attack():
                         break
                     cx += dx
                     cy += dy
-            ROOK_ATTACKS[square].append(mask)    
+            index = (blocker_subset * m.MAGIC_NUMBER_ROOK[square]) >> (64 - m.ROOK_RELEVANT_BITS[row][col])
+            ROOK_ATTACKS[square][index] = mask
     
 BISHOP_ATTACKS = [[] for i in range(64)]
-def Bishop_attack():
+def init_Bishop_attack():
     directions = [(1,1),(-1,-1),(1,-1),(-1,1)]
     for square in range(64):
-        attack_subset = BISHOP_BLOCKER_SUBSET[square]
-        for blocker_subset in attack_subset:
+        row, col = divmod(square, 8)
+        num_entries = 1 << m.BISHOP_RELEVANT_BITS[row][col]  
+        BISHOP_ATTACKS[square] = [0] * num_entries     
+        for blocker_subset in BISHOP_BLOCKER_SUBSET[square]:
             x = square % 8
             y = square // 8
             mask = 0
@@ -259,7 +275,8 @@ def Bishop_attack():
                         break
                     cx += dx
                     cy += dy
-            BISHOP_ATTACKS[square].append(mask)
+            index = (blocker_subset * m.MAGIC_NUMBER_BISHOP[square]) >> (64 - m.BISHOP_RELEVANT_BITS[row][col])
+            BISHOP_ATTACKS[square][index] = mask
 
 """ QUEEN --> Will combine both Bishop and Rook attacks"""
 """ Making Queen subset will make millions of attacks  """

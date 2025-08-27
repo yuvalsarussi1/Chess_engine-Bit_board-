@@ -26,58 +26,43 @@ class Board:
                             b.PIECE_DICT["r"] | b.PIECE_DICT["q"] | b.PIECE_DICT["k"])
         b.ALL_OCCUPANCY   = b.BLACK_OCCUPANCY | b.WHITE_OCCUPANCY
         
-    def Square_map_update():
-        pass
-
-
-
-
+    
     def piece_exists(bit_index: int, occupancy: int) -> bool:
         """Check if a piece exists at the given bit index in the occupancy bitboard."""
         return (occupancy & (1 << bit_index)) != 0
     
-    def Move_attacker(square_num: int,target: int,attack_name: str):
-        square_index = (1 << square_num)
-        target_index = (1 << target)
+    def Move_attacker(from_sq: int,to_sq: int):
         
-        b.PIECE_DICT[attack_name] &= ~square_index
-        b.PIECE_DICT[attack_name] |=target_index
+        from_sq_index = (1 << from_sq)
+        to_sq_index = (1 << to_sq)
+        
+        Attacker_sq = b.SQUARE_MAP[from_sq]
+        Enemy_sq = b.SQUARE_MAP[to_sq]
 
-        b.SQUARE_MAP[target] = b.SQUARE_MAP[square_num]
-        b.SQUARE_MAP[square_num] = "." 
+        b.PIECE_DICT[Attacker_sq] &= ~from_sq_index
+        b.PIECE_DICT[Attacker_sq] |=to_sq_index
+        if Enemy_sq != ".":
+            b.PIECE_DICT[Enemy_sq] &= ~to_sq_index
+        
+        b.SQUARE_MAP[from_sq] = "."
+        b.SQUARE_MAP[to_sq] = Attacker_sq
 
-    def Remove_target(target: int,target_name: str):
-        target_index = (1 << target)
-        b.PIECE_DICT[target_name] &= ~ target_index
+    def print_board_list(lst, top_down=True):
+        rows = [lst[i:i+8] for i in range(0, len(lst), 8)]
+        if top_down:
+            rows = rows[::-1]   # flip order for rank 8 at top
+        for row in rows:
+            print(" ".join(row))
+
         
 
-        
 
-
-
-    def print_board():
-        pass
-
-
-
-# Board.Fresh_reset()
-# Board.Update_occupancy()
-
-# print(hex(WHITE_OCCUPANCY))
 
      
 
 
 
 
-
-
-
-
-# Board.Fresh_reset()
-# Board.Update_occupancy()
-# check = Board.Piece_existence_check(1<<57,WHITE_OCCUPANCY)
-# print(check)
 
 
 

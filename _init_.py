@@ -18,5 +18,5 @@ init_Rook_blocker_subset_build()
 init_Bishop_blocker_subset_build()
 
 """Creating all the possible attack bitboard from each square for sliding pieces based on blocker subset"""
-Rook_attack()
-Bishop_attack()
+init_Rook_attack()
+init_Bishop_attack()
