@@ -1,6 +1,6 @@
 import bitboard as b
-
-
+import threats as th
+import utils as u
 class Board:
     def __init__(self):
         self.reset()
@@ -54,11 +54,43 @@ class Board:
         for row in rows:
             print(" ".join(row))
 
+    
+
+    def Check_state(side):
+        if side == "w" and (th.Threats.THREAT_MAP_BLACK & b.PIECE_DICT["K"]):
+            print("white in check")
+            return True
+        if side == "b" and (th.Threats.THREAT_MAP_WHITE & b.PIECE_DICT["k"]):
+            print("black in check")
+            return True
+        return False
+
+
+    def Undo_move(from_sq: int,to_sq: int,moved_piece: str,captured_piece: str,side: str):
         
+        from_sq_index = (1 << from_sq)
+        to_sq_index = (1 << to_sq)
+       
+        #Reset moved piece to previos state
+        b.PIECE_DICT[moved_piece] &= ~to_sq_index
+        b.PIECE_DICT[moved_piece] |=from_sq_index
+        
+        #Reset captured piece to previos state
+        if captured_piece != ".":
+            b.PIECE_DICT[captured_piece] |= to_sq_index
+        b.SQUARE_MAP[to_sq] = captured_piece
+        b.SQUARE_MAP[from_sq] = moved_piece
 
+        #Reset occupancy to previos state
+        Board.Update_occupancy()
+        
+        #Reset occupancy to previos state
+        th.Threats.get_threat_map()
 
-
-     
+        #Reset turn to previos state
+        flip_side = u.Side_change(side)
+        print(flip_side,"Turn")
+        
 
 
 

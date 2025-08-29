@@ -65,7 +65,7 @@ def Piece_move(from_sq: int):
 
 def Piece_attack(from_sq: int):
     piece = b.SQUARE_MAP[from_sq]
-    print(PIECE_ATTACKS[piece](from_sq),"CHECK ATTACKS")
+    # print(PIECE_ATTACKS[piece](from_sq),"CHECK ATTACKS")
     return PIECE_ATTACKS[piece](from_sq)
 
 def Valid_attack(attacks: int, target):

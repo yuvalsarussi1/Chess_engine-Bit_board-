@@ -2,17 +2,20 @@ from board import *
 from _init_ import * 
 from utils import * 
 from moves import *
-from threats import *
+import threats as th
 import bitboard as b
 import magic as m
-
-
 
 Board.Fresh_reset()
 Board.Update_occupancy()
 # check = Threats.Return_threat_map()
 # print(check)
       
+
+      
+
+
+
 
 
 while True:#========================Pick_side==================
@@ -25,6 +28,8 @@ while True:#========================Pick_side==================
     break
     
 while True:#========================Game_loop==================
+    
+    Board.Check_state(side)
     Board.print_board_list(b.SQUARE_MAP,True)
     Update_PIECES_TURN(side)
 #=========================ENTER PIECE SQUARE COORD=================
@@ -44,9 +49,6 @@ while True:#========================Game_loop==================
     if to_sq is False:
         print("Invalid Input")
         continue
-
-
-    
 #=================PICK PIECE AND CHECK FOR VALID MOVE==============
     if Board.piece_exists(to_sq,b.ALL_OCCUPANCY) is False:
         Action = Piece_move(from_sq)
@@ -60,32 +62,37 @@ while True:#========================Game_loop==================
     if Friendly is False:
         print("Target square is friendly")
         continue
+
+
+
+
+
+#=========================Assain pieces========================
+    moved_piece = b.SQUARE_MAP[from_sq]#can be str(piece_name)
+    captured_piece = b.SQUARE_MAP[to_sq]#can be str(piece_name) or str(".")
+
+#=========================UPDATE THE PIECES LISTS==================
+    Board.Move_attacker(from_sq, to_sq)
+    Board.Update_occupancy()
+    th.Threats.get_threat_map()
+    
+
+    
+
+#========================= Undo move ========================    
+    if Board.Check_state(side):
+        Board.Undo_move(from_sq,to_sq,moved_piece,captured_piece,side)
+        print("Move undone (illegal)")
+        continue
 #========================= Change side ========================
     side = Side_change(side)
     print(side,"Turn")            
+#=========================END GAME CONDITION=======================
+    if b.WHITE_OCCUPANCY == 0 or b.BLACK_OCCUPANCY == 0:
+        print("Game over")
+        break
 
 
-
-
-
-
-
-#=========================wUPDATE THE PIECES LISTS==================
-    Board.Move_attacker(from_sq, to_sq)
-    Board.Update_occupancy()
-    print(b.ALL_OCCUPANCY,"check1111111")
-    # check = Threats.Return_threat_map()
-    # print(check)
-
-    
-
-#in magic file turn off (MAGIC_NUMBER_BISHOP = [0]*64) and (MAGIC_NUMBER_ROOK = [0]*64)
-#it reset the list with magic numbers.
-#after turn off the index of rook is incorect. 
-#1.check if the generated number is correct 
-
-
-    
 
 
     
