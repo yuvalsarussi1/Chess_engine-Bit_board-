@@ -73,4 +73,9 @@ def Side_change(side):
         new_side = "w"
     return new_side
 
-        
+def Score_change(to_sq: int,side: bool):#not working with en_passant 
+    piece = b.SQUARE_MAP[to_sq]
+    if side == "w":
+          b.WHITE_SCORE += b.PIECE_SCORES[piece]
+    if side == "b":
+          b.BLACK_SCORE += b.PIECE_SCORES[piece]

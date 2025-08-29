@@ -2,15 +2,17 @@ from board import *
 from _init_ import * 
 from utils import * 
 from moves import *
+from threats import *
 import bitboard as b
+import magic as m
 
 
 
 Board.Fresh_reset()
 Board.Update_occupancy()
-print(hex(b.WHITE_OCCUPANCY))
+# check = Threats.Return_threat_map()
+# print(check)
       
-
 
 
 while True:#========================Pick_side==================
@@ -22,7 +24,7 @@ while True:#========================Pick_side==================
     print(side,"Turn")            
     break
     
-while True:#========================Game_oop==================
+while True:#========================Game_loop==================
     Board.print_board_list(b.SQUARE_MAP,True)
     Update_PIECES_TURN(side)
 #=========================ENTER PIECE SQUARE COORD=================
@@ -42,10 +44,15 @@ while True:#========================Game_oop==================
     if to_sq is False:
         print("Invalid Input")
         continue
+
+
+    
 #=================PICK PIECE AND CHECK FOR VALID MOVE==============
-    Attacks = Piece_select(from_sq)
-    Attacks = Valid_attack(Attacks,to_sq)
-    if Attacks is False:
+    if Board.piece_exists(to_sq,b.ALL_OCCUPANCY) is False:
+        Action = Piece_move(from_sq)
+    else:
+        Action = Piece_attack(from_sq)
+    if not Valid_attack(Action, to_sq):
         print("Invalid move")
         continue
 #=========================CHECK IF FIRENDLY========================
@@ -53,20 +60,29 @@ while True:#========================Game_oop==================
     if Friendly is False:
         print("Target square is friendly")
         continue
-    
-
-#=========================UPDATE THE PIECES LISTS==================
-    Board.Move_attacker(from_sq, to_sq)
-    Board.Update_occupancy()
-
+#========================= Change side ========================
     side = Side_change(side)
     print(side,"Turn")            
 
 
-    
 
 
+
+
+
+#=========================wUPDATE THE PIECES LISTS==================
+    Board.Move_attacker(from_sq, to_sq)
+    Board.Update_occupancy()
+    print(b.ALL_OCCUPANCY,"check1111111")
+    # check = Threats.Return_threat_map()
+    # print(check)
+
     
+
+#in magic file turn off (MAGIC_NUMBER_BISHOP = [0]*64) and (MAGIC_NUMBER_ROOK = [0]*64)
+#it reset the list with magic numbers.
+#after turn off the index of rook is incorect. 
+#1.check if the generated number is correct 
 
 
     

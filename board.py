@@ -27,9 +27,9 @@ class Board:
         b.ALL_OCCUPANCY   = b.BLACK_OCCUPANCY | b.WHITE_OCCUPANCY
         
     
-    def piece_exists(bit_index: int, occupancy: int) -> bool:
+    def piece_exists(square_num: int, occupancy: int) -> bool:
         """Check if a piece exists at the given bit index in the occupancy bitboard."""
-        return (occupancy & (1 << bit_index)) != 0
+        return (occupancy & (1 << square_num)) != 0
     
     def Move_attacker(from_sq: int,to_sq: int):
         

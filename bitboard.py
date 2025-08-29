@@ -1,4 +1,3 @@
-import magic as m
 
 BIT_BOARD = [None,None,None,None] 
 #Start occupancy squars
@@ -39,6 +38,26 @@ SQUARE_MAP = [
     "p","p","p","p","p","p","p","p",
     "r","n","b","q","k","b","n","r",
 ]
+WHITE_SCORE = 0
+BLACK_SCORE = 0
+
+PIECE_SCORES = {
+    "P": 1,   
+    "N": 3,   
+    "B": 3,   
+    "R": 5,   
+    "Q": 9,   
+    "K": 0,   
+
+    "p": 1,   
+    "n": 3,
+    "b": 3,
+    "r": 5,
+    "q": 9,
+    "k": 0
+}
+
+
 
 
 #==========================================General Pieces Mask=================================================
@@ -117,7 +136,7 @@ def init_Rook_mask():
                 ROOK_MASK[i] |= 1 << (cx + cy*8)
                 cx += dx
                 cy += dy
-            
+    
 
 BISHOP_MASK = [0]*64
 def init_Bishop_mask():
@@ -173,6 +192,8 @@ def init_Rook_exclude_edges():
                 cy += dy
             mask |= 1 << ((cx-dx) + ((cy-dy)*8))
         ROOK_EXCLUDE_EDGES[i] = ROOK_MASK[i] & ~mask
+    
+
 
 BISHOP_EXCLUDE_EDGES = [0]*64
 def init_Bishop_exclude_edges():
@@ -206,22 +227,25 @@ def init_Queen_exclude_edges():
 ROOK_BLOCKER_SUBSET = [[] for i in range(64)]
 def init_Rook_blocker_subset_build():
     for i in range(64):
-        subset = ROOK_EXCLUDE_EDGES[i]
+        mask = ROOK_EXCLUDE_EDGES[i]
+        subset = 0
         while True:
-            ROOK_BLOCKER_SUBSET[i].append(subset) 
+            ROOK_BLOCKER_SUBSET[i].append(subset)
+            subset = (subset - mask) & mask
             if subset == 0:
                 break
-            subset = (subset - 1) & ROOK_EXCLUDE_EDGES[i]
 
 BISHOP_BLOCKER_SUBSET = [[] for i in range(64)]
 def init_Bishop_blocker_subset_build():
     for i in range(64):
-        subset = BISHOP_EXCLUDE_EDGES[i]
+        mask = BISHOP_EXCLUDE_EDGES[i]
+        subset = 0
         while True:
-            BISHOP_BLOCKER_SUBSET[i].append(subset) 
+            BISHOP_BLOCKER_SUBSET[i].append(subset)
+            subset = (subset - mask) & mask
             if subset == 0:
                 break
-            subset = (subset - 1) & BISHOP_EXCLUDE_EDGES[i]
+            
 
 """ QUEEN --> Will combine both Bishop and Rook subset"""
 """ Making Queen subset will make millions of subset  """
@@ -229,59 +253,43 @@ def init_Bishop_blocker_subset_build():
 
 #===========================================================================================
 
-#==========================================Generate attack=================================================
-"""Creating all the possible attack bitboard from each square for sliding pieces based on blocker subset"""
-
-ROOK_ATTACKS = [[] for i in range(64)]
-def init_Rook_attack():
+ROOK_ATTACKS_NO_MAGIC = [[] for i in range(64)]
+def init_Rook_attack_no_magic():
     directions = [(1,0),(-1,0),(0,1),(0,-1)]
     for square in range(64):
-        row, col = divmod(square, 8)
-        num_entries = 1 << m.ROOK_RELEVANT_BITS[row][col]  
-        ROOK_ATTACKS[square] = [0] * num_entries     
+        ROOK_ATTACKS_NO_MAGIC[square] = []
+        x = square % 8
+        y = square // 8
         for blocker_subset in ROOK_BLOCKER_SUBSET[square]:
-            x = square % 8
-            y = square // 8
             mask = 0
-            for dx,dy in directions:
-                cx = x + dx
-                cy = y + dy
-                while ((0 <= cx < 8) and (0 <= cy < 8)):
-                    mask |= (1 << (cx + cy*8))
-                    if (blocker_subset & (1 << (cx + (cy*8)))): 
-                        break
+            for dx, dy in directions:
+                cx, cy = x + dx, y + dy
+                while 0 <= cx < 8 and 0 <= cy < 8:
+                    sq = cx + cy*8        # <- explicit square index
+                    mask |= (1 << sq)
+                    if blocker_subset & (1 << sq):
+                        break             # stop immediately at first blocker
                     cx += dx
                     cy += dy
-            index = (blocker_subset * m.MAGIC_NUMBER_ROOK[square]) >> (64 - m.ROOK_RELEVANT_BITS[row][col])
-            ROOK_ATTACKS[square][index] = mask
-    
-BISHOP_ATTACKS = [[] for i in range(64)]
-def init_Bishop_attack():
+            ROOK_ATTACKS_NO_MAGIC[square].append(mask)
+
+BISHOP_ATTACKS_NO_MAGIC = [[] for i in range(64)]
+def init_Bishop_attack_no_magic():
     directions = [(1,1),(-1,-1),(1,-1),(-1,1)]
     for square in range(64):
-        row, col = divmod(square, 8)
-        num_entries = 1 << m.BISHOP_RELEVANT_BITS[row][col]  
-        BISHOP_ATTACKS[square] = [0] * num_entries     
+        x = square % 8
+        y = square // 8
         for blocker_subset in BISHOP_BLOCKER_SUBSET[square]:
-            x = square % 8
-            y = square // 8
             mask = 0
             for dx,dy in directions:
                 cx = x + dx
                 cy = y + dy
                 while ((0 <= cx < 8) and (0 <= cy < 8)):
                     mask |= (1 << (cx + cy*8))
-                    if (blocker_subset & (1 << (cx + (cy*8)))): 
+                    if blocker_subset & (1 << (cx + (cy*8))):
                         break
                     cx += dx
                     cy += dy
-            index = (blocker_subset * m.MAGIC_NUMBER_BISHOP[square]) >> (64 - m.BISHOP_RELEVANT_BITS[row][col])
-            BISHOP_ATTACKS[square][index] = mask
-
-""" QUEEN --> Will combine both Bishop and Rook attacks"""
-""" Making Queen subset will make millions of attacks  """
-    
-
+            BISHOP_ATTACKS_NO_MAGIC[square].append(mask)
 
         
-
