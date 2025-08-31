@@ -8,6 +8,11 @@ BIT_BOARD[3] =0xff00000000000000  #BLACK_FIRST_ROW
 
 pieces = ["P", "N", "B", "R", "Q", "K","p", "n", "b", "r", "q", "k"]
 #Piece that hold all pieces squares
+
+
+EMPTY, WP, WN, WB, WR, WQ, WK, BP, BN, BB, BR, BQ, BK = range(13)
+PIECE_BITBOARDS = [0] * 13
+
 PIECE_DICT = {piece: 0 for piece in pieces}
 PIECES_TURN = []
 #Row pieces for occupancy squars

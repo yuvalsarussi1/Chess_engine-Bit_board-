@@ -47,6 +47,57 @@ class Board:
         b.SQUARE_MAP[from_sq] = "."
         b.SQUARE_MAP[to_sq] = Attacker_sq
 
+
+
+
+        # # --- Incremental occupancy updates ---
+        # b.ALL_OCCUPANCY ^= from_sq_index
+        # b.ALL_OCCUPANCY |= to_sq_index
+
+        # if Attacker_sq.isupper():  # white move
+        #     b.WHITE_OCCUPANCY ^= from_sq_index
+        #     b.WHITE_OCCUPANCY |= to_sq_index
+        # else:                      # black move
+        #     b.BLACK_OCCUPANCY ^= from_sq_index
+        #     b.BLACK_OCCUPANCY |= to_sq_index
+
+        # if Enemy_sq != ".":  # captured piece clears occupancy
+        #     if Enemy_sq.isupper():
+        #         b.WHITE_OCCUPANCY ^= to_sq_index
+        #     else:
+        #         b.BLACK_OCCUPANCY ^= to_sq_index
+
+
+    # def Update_oc(from_sq: int,to_sq: int):
+
+    #     from_sq_index = (1 << from_sq)
+    #     to_sq_index = (1 << to_sq)
+        
+    #     Attacker_sq = b.SQUARE_MAP[from_sq]
+    #     Enemy_sq = b.SQUARE_MAP[to_sq]
+
+
+    #     # --- Incremental occupancy updates ---
+    #     b.ALL_OCCUPANCY ^= from_sq_index
+    #     b.ALL_OCCUPANCY |= to_sq_index
+
+    #     if Attacker_sq.isupper():  # white move
+    #         b.WHITE_OCCUPANCY ^= from_sq_index
+    #         b.WHITE_OCCUPANCY |= to_sq_index
+    #     else:                      # black move
+    #         b.BLACK_OCCUPANCY ^= from_sq_index
+    #         b.BLACK_OCCUPANCY |= to_sq_index
+
+    #     if Enemy_sq != ".":  # captured piece clears occupancy
+    #         if Enemy_sq.isupper():
+    #             b.WHITE_OCCUPANCY ^= to_sq_index
+    #         else:
+    #             b.BLACK_OCCUPANCY ^= to_sq_index
+
+
+
+
+
     def print_board_list(lst, top_down=True):
         rows = [lst[i:i+8] for i in range(0, len(lst), 8)]
         if top_down:
@@ -56,20 +107,21 @@ class Board:
 
     
 
-    def Check_state(side):
+    def Check_state(side) -> bool:
         if side == "w" and (th.Threats.THREAT_MAP_BLACK & b.PIECE_DICT["K"]):
-            print("white in check")
             return True
         if side == "b" and (th.Threats.THREAT_MAP_WHITE & b.PIECE_DICT["k"]):
-            print("black in check")
             return True
         return False
 
 
-    def Undo_move(from_sq: int,to_sq: int,moved_piece: str,captured_piece: str,side: str):
+    def Undo_move(from_sq: int,to_sq: int,moved_piece: str,captured_piece: str):
         
         from_sq_index = (1 << from_sq)
         to_sq_index = (1 << to_sq)
+
+        Attacker_sq = b.SQUARE_MAP[from_sq]
+        Enemy_sq = b.SQUARE_MAP[to_sq]
        
         #Reset moved piece to previos state
         b.PIECE_DICT[moved_piece] &= ~to_sq_index
@@ -84,12 +136,14 @@ class Board:
         #Reset occupancy to previos state
         Board.Update_occupancy()
         
+
+
         #Reset occupancy to previos state
-        th.Threats.get_threat_map()
+        th.Threats.threat_map_update()
 
         #Reset turn to previos state
-        flip_side = u.Side_change(side)
-        print(flip_side,"Turn")
+        # flip_side = u.Side_change(side)
+        # print(flip_side,"Turn")
         
 
 

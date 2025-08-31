@@ -47,7 +47,7 @@ class Threats:
 
 
     @classmethod
-    def get_threat_map(cls):
+    def threat_map_update(cls):
         cls.get_threat_map_white()
         cls.get_threat_map_black()
         return cls.THREAT_MAP_WHITE,cls.THREAT_MAP_BLACK

@@ -56,8 +56,8 @@ PIECE_ATTACKS = {
     ".": lambda sq: 0   # empty square → no attacks
 }
 PIECE_MOVES = PIECE_ATTACKS.copy()
-PIECE_MOVES["P"] = lambda sq: Pawn_walk_white(sq) | Pawn_double_white(sq)
-PIECE_MOVES["p"] = lambda sq: Pawn_walk_black(sq) | Pawn_double_black(sq)
+PIECE_MOVES["P"] = lambda sq: Pawn_walk_white(sq) | Pawn_double_white(sq) | Pawn_attacks_eat_white(sq)
+PIECE_MOVES["p"] = lambda sq: Pawn_walk_black(sq) | Pawn_double_black(sq) | Pawn_attacks_eat_black(sq)
 
 def Piece_move(from_sq: int):
     piece = b.SQUARE_MAP[from_sq]
