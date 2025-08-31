@@ -41,41 +41,41 @@ def Check_for_friendly_target(square_num: int,target: int) -> bool:
 
 def Update_PIECES_TURN(side: bool):
     global PIECES_TURN
-    if side == "w":
-          b.PIECES_TURN = ["P","R","N","B","Q","K"]
+    if side == 0:
+          b.PIECES_TURN = [b.WP,b.WR,b.WN,b.WB,b.WQ,b.WK]
     
-    if side == "b":
-          b.PIECES_TURN = ["p","r","n","b","q","k"]
+    if side == 1:
+          b.PIECES_TURN = [b.BP, b.BR, b.BN, b.BB, b.BQ, b.BK]
     
 def Valid_piece(square_num: int,side) -> bool:
      square_index = (1 << square_num)
     #  print("check", b.WHITE_OCCUPANCY)
-     if side == "w" and square_index & b.WHITE_OCCUPANCY:
+     if side == 0 and square_index & b.WHITE_OCCUPANCY:
           return True
-     if side == "b" and square_index & b.BLACK_OCCUPANCY:
+     if side == 1 and square_index & b.BLACK_OCCUPANCY:
           return True
      else:    
         return False
     
 
 def Side_pick(side):
-     if side == "w":
-          return "w"
-     if side == "b":
-          return "b"
+     if side == 0:
+          return 0
+     if side == 1:
+          return 1
      else:
           return False
      
 def Side_change(side):
-    if side == "w":
-        new_side = "b"
-    if side == "b":
-        new_side = "w"
+    if side == 0:
+        new_side = 1
+    if side == 1:
+        new_side = 0
     return new_side
 
 def Score_change(to_sq: int,side: bool):#not working with en_passant 
     piece = b.SQUARE_MAP[to_sq]
-    if side == "w":
+    if side == 0:
           b.WHITE_SCORE += b.PIECE_SCORES[piece]
-    if side == "b":
+    if side == 1:
           b.BLACK_SCORE += b.PIECE_SCORES[piece]

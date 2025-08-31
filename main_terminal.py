@@ -22,7 +22,7 @@ Board.Update_occupancy()
 
 
 while True:#========================Pick_side==================
-    side = input("Choose side:")
+    side = int(input("Choose side:"))
     side = Side_pick(side)
     if side is False:
         print("use format w/o")

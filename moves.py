@@ -10,13 +10,28 @@ def Pawn_attacks_eat_white(square_num: int) -> int:
 def Pawn_walk_white(square_num: int) -> int:
     return b.PAWN_MASK_WALK_WHITE[square_num]
 def Pawn_double_white(square_num: int) -> int:
-    return b.PAWN_MASK_DOUBLE_WHITE[square_num]
+    one_step = Pawn_walk_white(square_num)
+    two_step = one_step << 8   # shift 8 more squares ahead
+    if (one_step & ~b.ALL_OCCUPANCY) and (two_step & ~b.ALL_OCCUPANCY):
+        return two_step
+    return 0
+
+
+
+
 def Pawn_attacks_eat_black(square_num: int) -> int:
     return b.PAWN_MASK_EAT_BLACK[square_num]
 def Pawn_walk_black(square_num: int) -> int:
     return b.PAWN_MASK_WALK_BLACK[square_num]
 def Pawn_double_black(square_num: int) -> int:
-    return b.PAWN_MASK_DOUBLE_BLACK[square_num]
+    one_step = Pawn_walk_black(square_num)
+    two_step = one_step << 8   # shift 8 more squares ahead
+    if (one_step & ~b.ALL_OCCUPANCY) and (two_step & ~b.ALL_OCCUPANCY):
+        return two_step
+    return 0
+
+
+
 def Knight_attacks(square_num: int) -> int:
    return b.KNIGHT_MASK[square_num]
 def King_attack(square_num: int) -> int:
@@ -39,25 +54,51 @@ def Queen_attack(square_num: int) -> int:
     return Rook_attack(square_num) | Bishop_attack(square_num)
 #===========================================================================================
 
+PIECE_ATTACKS = [lambda sq: 0] * 13
+PIECE_MOVES   = [lambda sq: 0] * 13
 
-PIECE_ATTACKS = {
-    "P": lambda sq: Pawn_attacks_eat_white(sq),
-    "N": lambda sq: Knight_attacks(sq),
-    "B": lambda sq: Bishop_attack(sq),
-    "R": lambda sq: Rook_attack(sq),
-    "Q": lambda sq: Queen_attack(sq),
-    "K": lambda sq: King_attack(sq),
-    "p": lambda sq: Pawn_attacks_eat_black(sq),  # black pawn
-    "n": lambda sq: Knight_attacks(sq),
-    "b": lambda sq: Bishop_attack(sq),
-    "r": lambda sq: Rook_attack(sq),
-    "q": lambda sq: Queen_attack(sq),
-    "k": lambda sq: King_attack(sq),
-    ".": lambda sq: 0   # empty square → no attacks
-}
-PIECE_MOVES = PIECE_ATTACKS.copy()
-PIECE_MOVES["P"] = lambda sq: Pawn_walk_white(sq) | Pawn_double_white(sq) | Pawn_attacks_eat_white(sq)
-PIECE_MOVES["p"] = lambda sq: Pawn_walk_black(sq) | Pawn_double_black(sq) | Pawn_attacks_eat_black(sq)
+PIECE_ATTACKS[b.WP] = Pawn_attacks_eat_white
+PIECE_ATTACKS[b.WN] = Knight_attacks
+PIECE_ATTACKS[b.WB] = Bishop_attack
+PIECE_ATTACKS[b.WR] = Rook_attack
+PIECE_ATTACKS[b.WQ] = Queen_attack
+PIECE_ATTACKS[b.WK] = King_attack
+PIECE_ATTACKS[b.BP] = Pawn_attacks_eat_black
+PIECE_ATTACKS[b.BN] = Knight_attacks
+PIECE_ATTACKS[b.BB] = Bishop_attack
+PIECE_ATTACKS[b.BR] = Rook_attack
+PIECE_ATTACKS[b.BQ] = Queen_attack
+PIECE_ATTACKS[b.BK] = King_attack
+
+# White pieces
+PIECE_MOVES[b.WP] = lambda sq: (
+    (Pawn_walk_white(sq) & ~b.ALL_OCCUPANCY) |
+    (Pawn_double_white(sq) & ~b.ALL_OCCUPANCY) |
+    (Pawn_attacks_eat_white(sq) & b.BLACK_OCCUPANCY)
+)
+PIECE_MOVES[b.WN] = lambda sq: Knight_attacks(sq) & ~b.WHITE_OCCUPANCY
+PIECE_MOVES[b.WB] = lambda sq: Bishop_attack(sq) & ~b.WHITE_OCCUPANCY
+PIECE_MOVES[b.WR] = lambda sq: Rook_attack(sq)   & ~b.WHITE_OCCUPANCY
+PIECE_MOVES[b.WQ] = lambda sq: Queen_attack(sq)  & ~b.WHITE_OCCUPANCY
+PIECE_MOVES[b.WK] = lambda sq: King_attack(sq)   & ~b.WHITE_OCCUPANCY
+
+# Black pieces
+PIECE_MOVES[b.BP] = lambda sq: (
+    (Pawn_walk_black(sq) & ~b.ALL_OCCUPANCY) |
+    (Pawn_double_black(sq) & ~b.ALL_OCCUPANCY) |
+    (Pawn_attacks_eat_black(sq) & b.WHITE_OCCUPANCY)
+)
+PIECE_MOVES[b.BN] = lambda sq: Knight_attacks(sq) & ~b.BLACK_OCCUPANCY
+PIECE_MOVES[b.BB] = lambda sq: Bishop_attack(sq) & ~b.BLACK_OCCUPANCY
+PIECE_MOVES[b.BR] = lambda sq: Rook_attack(sq)   & ~b.BLACK_OCCUPANCY
+PIECE_MOVES[b.BQ] = lambda sq: Queen_attack(sq)  & ~b.BLACK_OCCUPANCY
+PIECE_MOVES[b.BK] = lambda sq: King_attack(sq)   & ~b.BLACK_OCCUPANCY
+
+
+
+
+
+
 
 def Piece_move(from_sq: int):
     piece = b.SQUARE_MAP[from_sq]

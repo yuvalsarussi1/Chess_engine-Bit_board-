@@ -20,11 +20,12 @@ def All_Move_generate():
     MOVES_DICT = {}    
     for sym in b.PIECES_TURN:                               # List of pieces for spacific turn
         piece_mask = b.PIECE_DICT[sym]                  # Coords based on symbol(can be more then one)
-        coord_list = From_mask_to_coords(piece_mask)      # List of coords for spacific piece        
-        sublist = []                                        # Temp list
-        for coord in coord_list:                            # Looping throgh list
-            Action_move = mo.Piece_move(coord)              # Getting the mask for the moves for spacific piece
-            MOVES_DICT[coord] = (Action_move)
+        while piece_mask:
+            lsb = piece_mask & -piece_mask
+            sq = lsb.bit_length() - 1
+            piece_mask ^= lsb
+            moves = mo.Piece_move(sq)
+            MOVES_DICT[sq] = moves
 
 
 

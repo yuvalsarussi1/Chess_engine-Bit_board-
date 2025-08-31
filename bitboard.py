@@ -10,14 +10,17 @@ pieces = ["P", "N", "B", "R", "Q", "K","p", "n", "b", "r", "q", "k"]
 #Piece that hold all pieces squares
 
 
-EMPTY, WP, WN, WB, WR, WQ, WK, BP, BN, BB, BR, BQ, BK = range(13)
+E = 2
+E, WP, WN, WB, WR, WQ, WK, BP, BN, BB, BR, BQ, BK = range(13)
 PIECE_BITBOARDS = [0] * 13
 
-PIECE_DICT = {piece: 0 for piece in pieces}
+
+
+PIECE_DICT = [0]*13
 PIECES_TURN = []
 #Row pieces for occupancy squars
-WHITE_ROW1_PIECES = ["R","N","B","Q","K","B","N","R"]
-BLACK_ROW1_PIECES = ["r","n","b","q","k","b","n","r"]
+WHITE_ROW1_PIECES = [WR,WN,WB,WQ,WK,WB,WN,WR]
+BLACK_ROW1_PIECES = [BR,BN,BB,BQ,BK,BB,BN,BR]
 
 #Occupancy squars divide for color
 WHITE_OCCUPANCY = 0
@@ -32,17 +35,26 @@ CASTLING_BLACK_QUEEN = 0xe00000000000000
 LIGHT_SQUARE = 0x55aa55aa55aa55aa
 DARK_SQUARE = 0xaa55aa55aa55aa55
 
-
 SQUARE_MAP = [
-    "R","N","B","Q","K","B","N","R",
-    "P","P","P","P","P","P","P","P",
-    ".",".",".",".",".",".",".",".",
-    ".",".",".",".",".",".",".",".",
-    ".",".",".",".",".",".",".",".",
-    ".",".",".",".",".",".",".",".",
-    "p","p","p","p","p","p","p","p",
-    "r","n","b","q","k","b","n","r",
+    WR, WN, WB, WQ, WK, WB, WN, WR,   # 0–7   White back rank
+    WP, WP, WP, WP, WP, WP, WP, WP,   # 8–15  White pawns
+    E, E, E, E, E, E, E, E,   # 16–23
+    E, E, E, E, E, E, E, E,   # 24–31
+    E, E, E, E, E, E, E, E,   # 32–39
+    E, E, E, E, E, E, E, E,   # 40–47
+    BP, BP, BP, BP, BP, BP, BP, BP,   # 48–55 Black pawns
+    BR, BN, BB, BQ, BK, BB, BN, BR    # 56–63 Black back rank
 ]
+
+PIECE_TO_CHAR = {
+    E: ".",
+    WP: "P", WN: "N", WB: "B", WR: "R", WQ: "Q", WK: "K",
+    BP: "p", BN: "n", BB: "b", BR: "r", BQ: "q", BK: "k"
+}
+
+
+
+
 WHITE_SCORE = 0
 BLACK_SCORE = 0
 
