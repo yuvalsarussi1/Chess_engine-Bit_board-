@@ -1,6 +1,6 @@
 from board import *
 import bitboard as b
-
+import moves as mo
 def Coord_converter_index(coord: str) -> int: #change to enter both piece and target in one input
     if len(coord) == 2:
         file = ord(coord[0].lower()) - ord("a")
@@ -79,3 +79,7 @@ def Score_change(to_sq: int,side: bool):#not working with en_passant
           b.WHITE_SCORE += b.PIECE_SCORES[piece]
     if side == 1:
           b.BLACK_SCORE += b.PIECE_SCORES[piece]
+
+
+def attacks_of_piece(piece, square):
+    return mo.PIECE_ATTACKS[piece](square)

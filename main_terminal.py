@@ -56,14 +56,12 @@ while True:#========================Game_loop==================
         print("Invalid Input")
         continue
 #=================PICK PIECE AND CHECK FOR VALID MOVE==============
-    if Board.piece_exists(to_sq,b.ALL_OCCUPANCY) is False:
-        Action = Piece_move(from_sq)
-    else:
-        Action = Piece_attack(from_sq)
+    Action = Piece_move(from_sq)
+    print(Action,"ACTION")
     if not Valid_attack(Action, to_sq):
         print("Invalid move")
         continue
-#=========================CHECK IF FIRENDLY========================
+#========================= CHECK IF FIRENDLY========================
     Friendly = Check_for_friendly_target(from_sq,to_sq)
     if Friendly is False:
         print("Target square is friendly")
@@ -79,11 +77,14 @@ while True:#========================Game_loop==================
 
 #=========================UPDATE THE PIECES LISTS==================
     Board.Move_attacker(from_sq, to_sq)
-    Board.Update_occupancy()
-    th.Threats.threat_map_update()
-    
+    # Board.Update_occupancy()
+    # th.Threats.threat_map_update()
+    print(b.ALL_OCCUPANCY)
 
     
+       
+
+
 
 #========================= Check for self check ========================    
     if Board.Check_state(side):  
@@ -94,7 +95,7 @@ while True:#========================Game_loop==================
 
 #========================= Change side ========================
     side = Side_change(side)
-#========================= Check for checkmate ========================
+#========================= Check for checkmate ===========0=============
 
 
     if Board.Check_state(side):
@@ -139,5 +140,4 @@ while True:#========================Game_loop==================
     print(f"{N / (end-start):,.0f} positions/sec")
 
 
-    
-    
+        

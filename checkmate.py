@@ -29,11 +29,8 @@ def All_Move_generate():
 
 
 
-
-
-
 def Has_legal_move(side):
-    legal_moves = []
+    legal_moves = 0
     for from_sq,from_mask in MOVES_DICT.items():
         coords = From_mask_to_coords(from_mask)
         for to_sq in coords:
@@ -41,11 +38,8 @@ def Has_legal_move(side):
             captured_piece = b.SQUARE_MAP[to_sq] #can be str(piece_name) or str(".")
  
             Board.Move_attacker(from_sq,to_sq)
-            Board.Update_occupancy()
-            th.Threats.threat_map_update()
             if not Board.Check_state(side):
-                legal_moves.append((from_sq, to_sq))
-                Board.Undo_move(from_sq,to_sq,moved_piece,captured_piece)
+                legal_moves += 1
             Board.Undo_move(from_sq,to_sq,moved_piece,captured_piece)
 
-    return len(legal_moves)
+    return legal_moves

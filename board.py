@@ -1,6 +1,8 @@
 import bitboard as b
 import threats as th
 import utils as u
+import moves as mo
+
 class Board:
     def __init__(self):
         self.reset()
@@ -43,12 +45,25 @@ class Board:
 
 
     
-    def Check_state(side) -> bool:
-        if side == 0 and (th.Threats.THREAT_MAP_BLACK & b.PIECE_DICT[b.WK]):
-            return True
-        if side == 1 and (th.Threats.THREAT_MAP_WHITE & b.PIECE_DICT[b.BK]):
-            return True
-        return False
+    def Check_state(side: int) -> bool:
+        
+        king_sq = b.WHITE_KING_SQ if side == 0 else b.BLACK_KING_SQ
+
+        if side == 0:  # white to move → is white king attacked?
+            if (mo.Pawn_attacks_eat_black(king_sq) & b.PIECE_DICT[b.BP]): return True
+            if (mo.Knight_attacks(king_sq) & b.PIECE_DICT[b.BN]): return True
+            if (mo.Bishop_attack(king_sq) & (b.PIECE_DICT[b.BB] | b.PIECE_DICT[b.BQ])): return True
+            if (mo.Rook_attack(king_sq) & (b.PIECE_DICT[b.BR] | b.PIECE_DICT[b.BQ])): return True
+            if (mo.King_attack(king_sq) & b.PIECE_DICT[b.BK]): return True
+            return False
+
+        else:  # black to move → is black king attacked?
+            if (mo.Pawn_attacks_eat_white(king_sq) & b.PIECE_DICT[b.WP]): return True
+            if (mo.Knight_attacks(king_sq) & b.PIECE_DICT[b.WN]): return True
+            if (mo.Bishop_attack(king_sq) & (b.PIECE_DICT[b.WB] | b.PIECE_DICT[b.WQ])): return True
+            if (mo.Rook_attack(king_sq) & (b.PIECE_DICT[b.WR] | b.PIECE_DICT[b.WQ])): return True
+            if (mo.King_attack(king_sq) & b.PIECE_DICT[b.WK]): return True
+            return False
 
 
     def Move_attacker(from_sq: int, to_sq: int):
@@ -57,6 +72,11 @@ class Board:
 
         moved_piece = b.SQUARE_MAP[from_sq]
         captured_piece = b.SQUARE_MAP[to_sq]
+
+        if moved_piece == b.WK:
+            b.WHITE_KING_SQ = to_sq
+        elif moved_piece == b.BK:
+            b.BLACK_KING_SQ = to_sq
 
         # --- update bitboards ---
         b.PIECE_DICT[moved_piece] &= ~from_mask
@@ -84,13 +104,21 @@ class Board:
                 b.WHITE_OCCUPANCY ^= to_mask
             else:
                 b.BLACK_OCCUPANCY ^= to_mask
-
+        
         return moved_piece, captured_piece
 
 
     def Undo_move(from_sq: int, to_sq: int, moved_piece: int, captured_piece: int):
         from_mask = 1 << from_sq
         to_mask   = 1 << to_sq
+
+
+        if moved_piece == b.WK:
+            b.WHITE_KING_SQ = from_sq
+        elif moved_piece == b.BK:
+            b.BLACK_KING_SQ = from_sq
+
+
 
         # --- restore moved piece ---
         b.PIECE_DICT[moved_piece] &= ~to_mask
@@ -123,7 +151,6 @@ class Board:
 
 
             #Reset occupancy to previos state
-            th.Threats.threat_map_update()
 
             #Reset turn to previos state
             # flip_side = u.Side_change(side)

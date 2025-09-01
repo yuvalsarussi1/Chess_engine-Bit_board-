@@ -52,7 +52,8 @@ PIECE_TO_CHAR = {
     BP: "p", BN: "n", BB: "b", BR: "r", BQ: "q", BK: "k"
 }
 
-
+WHITE_KING_SQ = 4
+BLACK_KING_SQ = 60
 
 
 WHITE_SCORE = 0

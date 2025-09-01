@@ -10,13 +10,12 @@ def Pawn_attacks_eat_white(square_num: int) -> int:
 def Pawn_walk_white(square_num: int) -> int:
     return b.PAWN_MASK_WALK_WHITE[square_num]
 def Pawn_double_white(square_num: int) -> int:
-    one_step = Pawn_walk_white(square_num)
-    two_step = one_step << 8   # shift 8 more squares ahead
-    if (one_step & ~b.ALL_OCCUPANCY) and (two_step & ~b.ALL_OCCUPANCY):
-        return two_step
+    one_step = b.PAWN_MASK_WALK_WHITE[square_num]
+    two_step = b.PAWN_MASK_DOUBLE_WHITE[square_num]
+    if one_step and two_step:
+        if (one_step & ~b.ALL_OCCUPANCY) and (two_step & ~b.ALL_OCCUPANCY):
+            return two_step
     return 0
-
-
 
 
 def Pawn_attacks_eat_black(square_num: int) -> int:
@@ -24,12 +23,12 @@ def Pawn_attacks_eat_black(square_num: int) -> int:
 def Pawn_walk_black(square_num: int) -> int:
     return b.PAWN_MASK_WALK_BLACK[square_num]
 def Pawn_double_black(square_num: int) -> int:
-    one_step = Pawn_walk_black(square_num)
-    two_step = one_step << 8   # shift 8 more squares ahead
-    if (one_step & ~b.ALL_OCCUPANCY) and (two_step & ~b.ALL_OCCUPANCY):
-        return two_step
+    one_step = b.PAWN_MASK_WALK_BLACK[square_num]
+    two_step = b.PAWN_MASK_DOUBLE_BLACK[square_num]
+    if one_step and two_step:
+        if (one_step & ~b.ALL_OCCUPANCY) and (two_step & ~b.ALL_OCCUPANCY):
+            return two_step
     return 0
-
 
 
 def Knight_attacks(square_num: int) -> int:
@@ -45,7 +44,7 @@ def Rook_attack(square_num: int) -> int:
 
 
 def Bishop_attack(square_num: int) -> int:
-    occ = b.ALL_OCCUPANCY & b.BISHOP_MASK[square_num]
+    occ = b.ALL_OCCUPANCY & b.BISHOP_EXCLUDE_EDGES[square_num]
     index = ((occ * m.MAGIC_NUMBER_BISHOP_LIST[square_num]) & ((1 << 64) - 1)) >> (64 - m.BISHOP_RELEVANT_BITS[square_num])
     return m.MAGIC_ATTACKS_BISHOP[square_num][index]
 
@@ -93,9 +92,6 @@ PIECE_MOVES[b.BB] = lambda sq: Bishop_attack(sq) & ~b.BLACK_OCCUPANCY
 PIECE_MOVES[b.BR] = lambda sq: Rook_attack(sq)   & ~b.BLACK_OCCUPANCY
 PIECE_MOVES[b.BQ] = lambda sq: Queen_attack(sq)  & ~b.BLACK_OCCUPANCY
 PIECE_MOVES[b.BK] = lambda sq: King_attack(sq)   & ~b.BLACK_OCCUPANCY
-
-
-
 
 
 

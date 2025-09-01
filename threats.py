@@ -1,5 +1,5 @@
 import bitboard as b
-
+import moves as mo
 class Threats:
 
     THREAT_MAP_WHITE = 0
@@ -51,4 +51,7 @@ class Threats:
         cls.get_threat_map_white()
         cls.get_threat_map_black()
         return cls.THREAT_MAP_WHITE,cls.THREAT_MAP_BLACK
+
+
+
 
