@@ -1,0 +1,23 @@
+
+
+class MoveRecord:
+    NONE_FLAG = 0
+    EN_PASSANT = 1
+    CASTLING = 2
+    PROMOTION = 3
+    
+    def __init__(self, from_sq, to_sq, moved_piece, captured_piece, flags = 0,):
+        self.from_sq = from_sq
+        self.to_sq = to_sq
+        self.moved_piece = moved_piece
+        self.captured_piece = captured_piece
+        self.flags = flags
+
+
+    def __repr__(self):
+        return (f"MoveRecord(from_sq={self.from_sq}, to_sq={self.to_sq}, moved_piece={self.moved_piece}, "
+                f"captured_piece={self.captured_piece}, promotion_piece={self.promotion_piece}, "
+                f"is_castling={self.is_castling}, en_passant_square={self.en_passant_square})")
+
+    
+        

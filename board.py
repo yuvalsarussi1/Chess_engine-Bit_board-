@@ -54,7 +54,7 @@ class Board:
             if (mo.Knight_attacks(king_sq) & b.PIECE_DICT[b.BN]): return True
             if (mo.Bishop_attack(king_sq) & (b.PIECE_DICT[b.BB] | b.PIECE_DICT[b.BQ])): return True
             if (mo.Rook_attack(king_sq) & (b.PIECE_DICT[b.BR] | b.PIECE_DICT[b.BQ])): return True
-            if (mo.King_attack(king_sq) & b.PIECE_DICT[b.BK]): return True
+            if (mo.King_attack_white(king_sq) & b.PIECE_DICT[b.BK]): return True
             return False
 
         else:  # black to move → is black king attacked?
@@ -62,7 +62,7 @@ class Board:
             if (mo.Knight_attacks(king_sq) & b.PIECE_DICT[b.WN]): return True
             if (mo.Bishop_attack(king_sq) & (b.PIECE_DICT[b.WB] | b.PIECE_DICT[b.WQ])): return True
             if (mo.Rook_attack(king_sq) & (b.PIECE_DICT[b.WR] | b.PIECE_DICT[b.WQ])): return True
-            if (mo.King_attack(king_sq) & b.PIECE_DICT[b.WK]): return True
+            if (mo.King_attack_black(king_sq) & b.PIECE_DICT[b.WK]): return True
             return False
 
 
@@ -105,13 +105,16 @@ class Board:
             else:
                 b.BLACK_OCCUPANCY ^= to_mask
         
+
+        # Move_record = (from_sq, to_sq, moved_piece, captured_piece)
+        # b.MOVE_HISTORY.append(Move_record)
+
         return moved_piece, captured_piece
 
 
     def Undo_move(from_sq: int, to_sq: int, moved_piece: int, captured_piece: int):
         from_mask = 1 << from_sq
         to_mask   = 1 << to_sq
-
 
         if moved_piece == b.WK:
             b.WHITE_KING_SQ = from_sq
@@ -150,12 +153,6 @@ class Board:
                 b.BLACK_OCCUPANCY |= to_mask
 
 
-            #Reset occupancy to previos state
-
-            #Reset turn to previos state
-            # flip_side = u.Side_change(side)
-            # print(flip_side,"Turn")
-        
 
 
 

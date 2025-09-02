@@ -7,6 +7,7 @@ import bitboard as b
 import magic as m
 import checkmate as ch
 import time
+import castling as ca
 Board.Fresh_reset()
 Board.Update_occupancy()
 # check = Threats.Return_threat_map()
@@ -15,7 +16,8 @@ Board.Update_occupancy()
 
 
 
-
+#make change to undo_move(add a flag for en_passnat)
+#make change to en_passant functions
 
 
 
@@ -66,26 +68,15 @@ while True:#========================Game_loop==================
     if Friendly is False:
         print("Target square is friendly")
         continue
-
-
-
-
-
 #=========================Assain pieces========================
-    moved_piece = b.SQUARE_MAP[from_sq]#can be str(piece_name)
-    captured_piece = b.SQUARE_MAP[to_sq]#can be str(piece_name) or str(".")
+    moved_piece = b.SQUARE_MAP[from_sq] # int(piece_name)
+    captured_piece = b.SQUARE_MAP[to_sq]# int(piece_name)
 
+#========================= Execute castling ========================
+    ca.castling_trigger(from_sq,to_sq,moved_piece)
 #=========================UPDATE THE PIECES LISTS==================
     Board.Move_attacker(from_sq, to_sq)
-    # Board.Update_occupancy()
-    # th.Threats.threat_map_update()
     print(b.ALL_OCCUPANCY)
-
-    
-       
-
-
-
 #========================= Check for self check ========================    
     if Board.Check_state(side):  
         print("Illegal move! You cannot leave your king in check.")
@@ -96,8 +87,6 @@ while True:#========================Game_loop==================
 #========================= Change side ========================
     side = Side_change(side)
 #========================= Check for checkmate ===========0=============
-
-
     if Board.Check_state(side):
         print(f"{'White' if side == 'w' else 'Black'} is in check")
         ch.All_Move_generate()
@@ -119,9 +108,7 @@ while True:#========================Game_loop==================
             print("stalemate!")
             break
             
-        
-        
-
+    
 #================================================
     print(side,"Turn11")            
 #=========================END GAME CONDITION=======================

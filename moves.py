@@ -1,6 +1,6 @@
 import bitboard as b
 import magic as m
-
+import castling as ca
 
 #condition_1 = ligal piece move
 
@@ -33,8 +33,23 @@ def Pawn_double_black(square_num: int) -> int:
 
 def Knight_attacks(square_num: int) -> int:
    return b.KNIGHT_MASK[square_num]
-def King_attack(square_num: int) -> int:
-    return b.KING_MASK[square_num]
+
+def King_attack_white(square_num: int) -> int:
+    if ca.castling_condition_King_side or ca.castling_condition_Queen_side:
+        return (b.KING_MASK[square_num] | b.KING_CASTLING_MASK_WHITE)
+    else:
+        return b.KING_MASK[square_num]
+
+
+def King_attack_black(square_num: int) -> int:
+    if ca.castling_condition_King_side or ca.castling_condition_Queen_side:
+        return (b.KING_MASK[square_num] | b.KING_CASTLING_MASK_BLACK)
+    else:
+        return b.KING_MASK[square_num]
+
+
+
+
 
 
 def Rook_attack(square_num: int) -> int:
@@ -61,13 +76,13 @@ PIECE_ATTACKS[b.WN] = Knight_attacks
 PIECE_ATTACKS[b.WB] = Bishop_attack
 PIECE_ATTACKS[b.WR] = Rook_attack
 PIECE_ATTACKS[b.WQ] = Queen_attack
-PIECE_ATTACKS[b.WK] = King_attack
+PIECE_ATTACKS[b.WK] = King_attack_white
 PIECE_ATTACKS[b.BP] = Pawn_attacks_eat_black
 PIECE_ATTACKS[b.BN] = Knight_attacks
 PIECE_ATTACKS[b.BB] = Bishop_attack
 PIECE_ATTACKS[b.BR] = Rook_attack
 PIECE_ATTACKS[b.BQ] = Queen_attack
-PIECE_ATTACKS[b.BK] = King_attack
+PIECE_ATTACKS[b.BK] = King_attack_black
 
 # White pieces
 PIECE_MOVES[b.WP] = lambda sq: (
@@ -79,7 +94,7 @@ PIECE_MOVES[b.WN] = lambda sq: Knight_attacks(sq) & ~b.WHITE_OCCUPANCY
 PIECE_MOVES[b.WB] = lambda sq: Bishop_attack(sq) & ~b.WHITE_OCCUPANCY
 PIECE_MOVES[b.WR] = lambda sq: Rook_attack(sq)   & ~b.WHITE_OCCUPANCY
 PIECE_MOVES[b.WQ] = lambda sq: Queen_attack(sq)  & ~b.WHITE_OCCUPANCY
-PIECE_MOVES[b.WK] = lambda sq: King_attack(sq)   & ~b.WHITE_OCCUPANCY
+PIECE_MOVES[b.WK] = lambda sq: King_attack_white(sq)   & ~b.WHITE_OCCUPANCY
 
 # Black pieces
 PIECE_MOVES[b.BP] = lambda sq: (
@@ -91,7 +106,7 @@ PIECE_MOVES[b.BN] = lambda sq: Knight_attacks(sq) & ~b.BLACK_OCCUPANCY
 PIECE_MOVES[b.BB] = lambda sq: Bishop_attack(sq) & ~b.BLACK_OCCUPANCY
 PIECE_MOVES[b.BR] = lambda sq: Rook_attack(sq)   & ~b.BLACK_OCCUPANCY
 PIECE_MOVES[b.BQ] = lambda sq: Queen_attack(sq)  & ~b.BLACK_OCCUPANCY
-PIECE_MOVES[b.BK] = lambda sq: King_attack(sq)   & ~b.BLACK_OCCUPANCY
+PIECE_MOVES[b.BK] = lambda sq: King_attack_black(sq)   & ~b.BLACK_OCCUPANCY
 
 
 
@@ -112,6 +127,7 @@ def Valid_attack(attacks: int, target):
     else:
         return False
     
+
 
 
 

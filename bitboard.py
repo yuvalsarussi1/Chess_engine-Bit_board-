@@ -15,6 +15,8 @@ E, WP, WN, WB, WR, WQ, WK, BP, BN, BB, BR, BQ, BK = range(13)
 PIECE_BITBOARDS = [0] * 13
 
 
+MOVE_HISTORY = []
+
 
 PIECE_DICT = [0]*13
 PIECES_TURN = []
@@ -27,10 +29,31 @@ WHITE_OCCUPANCY = 0
 BLACK_OCCUPANCY = 0
 ALL_OCCUPANCY = 0
 
-CASTLING_WHITE_KING = 0x60
-CASTLING_WHITE_QUEEN = 0xe
-CASTLING_BLACK_KING = 0x6000000000000000
-CASTLING_BLACK_QUEEN = 0xe00000000000000
+CASTLING_WHITE_KING_SIDE = 0x60
+CASTLING_WHITE_QUEEN_SIDE = 0xe
+CASTLING_BLACK_KING_SIDE = 0x6000000000000000
+CASTLING_BLACK_QUEEN_SIDE = 0xe00000000000000
+
+WHITE_KING_MOVE = 0
+BLACK_KING_MOVE = 0
+WHITE_RR_MOVE = 0
+WHITE_LR_MOVE = 0
+BLACK_RR_MOVE = 0
+BLACK_LR_MOVE = 0
+
+# White castling empty squares
+WHITE_KINGSIDE_EMPTY   = (1 << 5) | (1 << 6)           
+WHITE_QUEENSIDE_EMPTY  = (1 << 1) | (1 << 2) | (1 << 3) 
+
+# Black castling empty squares
+BLACK_KINGSIDE_EMPTY   = (1 << 61) | (1 << 62)          
+BLACK_QUEENSIDE_EMPTY  = (1 << 57) | (1 << 58) | (1 << 59) 
+
+
+
+
+
+
 
 LIGHT_SQUARE = 0x55aa55aa55aa55aa
 DARK_SQUARE = 0xaa55aa55aa55aa55
@@ -94,6 +117,9 @@ def init_Knight_mask():
             if (0 <= dx + x < 8) and (0 <= dy + y < 8):
                 KNIGHT_MASK[num] |= (1 << (dy + y)*8 + (dx + x))
 
+
+KING_CASTLING_MASK_WHITE = 0x44
+KING_CASTLING_MASK_BLACK = 0x4400000000000000
 KING_MASK = [0]*64
 def init_King_mask():
     #all possible king moves
@@ -105,6 +131,11 @@ def init_King_mask():
         for dx,dy in jumps:
             if (0 <= dx + x < 8) and (0 <= dy + y < 8):
                 KING_MASK[num] |= (1 << (dy + y)*8 + (dx + x))
+
+    
+
+
+
 
 PAWN_MASK_WALK_WHITE = [0]*64
 PAWN_MASK_EAT_WHITE  = [0]*64
