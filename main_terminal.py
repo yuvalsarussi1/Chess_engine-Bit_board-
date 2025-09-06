@@ -12,12 +12,10 @@ Board.Fresh_reset()
 Board.Update_occupancy()
 # check = Threats.Return_threat_map()
 # print(check)
-      
 
 
-
-#make change to undo_move(add a flag for en_passnat)
-#make change to en_passant functions
+#castling triger works but not executed in the move function
+#need a way to tell if the move is castling or not
 
 
 
@@ -73,8 +71,8 @@ while True:#========================Game_loop==================
     captured_piece = b.SQUARE_MAP[to_sq]# int(piece_name)
 
 #========================= Execute castling ========================
-    ca.castling_trigger(from_sq,to_sq,moved_piece)
-#=========================UPDATE THE PIECES LISTS==================
+    # ca.castling_trigger(from_sq,to_sq,moved_piece) # moves the rook if castling
+#=========================UPDATE THE PIECES LISTS==================0
     Board.Move_attacker(from_sq, to_sq)
     print(b.ALL_OCCUPANCY)
 #========================= Check for self check ========================    
@@ -91,8 +89,8 @@ while True:#========================Game_loop==================
         print(f"{'White' if side == 'w' else 'Black'} is in check")
         ch.All_Move_generate()
 
-        All_legal_moves = ch.Has_legal_move(side)
-        if All_legal_moves == 0:
+        All_legal_moves = ch.Has_legal_move_no_counter(side)
+        if All_legal_moves == False:
             print("checkmate!")
             break
 
@@ -103,8 +101,8 @@ while True:#========================Game_loop==================
     else:
         
         ch.All_Move_generate()
-        All_legal_moves = ch.Has_legal_move(side)
-        if All_legal_moves == 0:
+        All_legal_moves = ch.Has_legal_move_no_counter(side)
+        if All_legal_moves == False:
             print("stalemate!")
             break
             
@@ -122,7 +120,7 @@ while True:#========================Game_loop==================
     N = 1000
     for _ in range(N):
         ch.All_Move_generate()
-        ch.Has_legal_move('w')  # or 'b'
+        ch.Has_legal_move_no_counter('w')  # or 'b'
     end = time.perf_counter()
     print(f"{N / (end-start):,.0f} positions/sec")
 

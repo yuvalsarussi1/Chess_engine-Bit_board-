@@ -34,18 +34,27 @@ def Pawn_double_black(square_num: int) -> int:
 def Knight_attacks(square_num: int) -> int:
    return b.KNIGHT_MASK[square_num]
 
+
+
+
+def King_attack_no_castling(square_num: int) -> int:
+    return b.KING_MASK[square_num]
+
+
 def King_attack_white(square_num: int) -> int:
-    if ca.castling_condition_King_side or ca.castling_condition_Queen_side:
-        return (b.KING_MASK[square_num] | b.KING_CASTLING_MASK_WHITE)
-    else:
-        return b.KING_MASK[square_num]
+    if ca.castling_condition_King_side(square_num):
+        return (b.KING_MASK[square_num] | b.KING_SIDE_CASTLING_MASK_WHITE)
+    if ca.castling_condition_Queen_side(square_num):
+        return (b.KING_MASK[square_num] | b.QUEEN_SIDE_CASTLING_MASK_WHITE)
+    return b.KING_MASK[square_num]
 
 
 def King_attack_black(square_num: int) -> int:
-    if ca.castling_condition_King_side or ca.castling_condition_Queen_side:
-        return (b.KING_MASK[square_num] | b.KING_CASTLING_MASK_BLACK)
-    else:
-        return b.KING_MASK[square_num]
+    if ca.castling_condition_King_side(square_num):
+        return (b.KING_MASK[square_num] | b.KING_SIDE_CASTLING_MASK_BLACK)
+    if ca.castling_condition_Queen_side(square_num):
+        return (b.KING_MASK[square_num] | b.QUEEN_SIDE_CASTLING_MASK_BLACK)
+    return b.KING_MASK[square_num]
 
 
 
@@ -76,13 +85,13 @@ PIECE_ATTACKS[b.WN] = Knight_attacks
 PIECE_ATTACKS[b.WB] = Bishop_attack
 PIECE_ATTACKS[b.WR] = Rook_attack
 PIECE_ATTACKS[b.WQ] = Queen_attack
-PIECE_ATTACKS[b.WK] = King_attack_white
+PIECE_ATTACKS[b.WK] = King_attack_no_castling
 PIECE_ATTACKS[b.BP] = Pawn_attacks_eat_black
 PIECE_ATTACKS[b.BN] = Knight_attacks
 PIECE_ATTACKS[b.BB] = Bishop_attack
 PIECE_ATTACKS[b.BR] = Rook_attack
 PIECE_ATTACKS[b.BQ] = Queen_attack
-PIECE_ATTACKS[b.BK] = King_attack_black
+PIECE_ATTACKS[b.BK] = King_attack_no_castling
 
 # White pieces
 PIECE_MOVES[b.WP] = lambda sq: (
@@ -127,7 +136,6 @@ def Valid_attack(attacks: int, target):
     else:
         return False
     
-
 
 
 

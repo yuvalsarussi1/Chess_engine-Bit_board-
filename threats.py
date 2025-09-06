@@ -52,19 +52,20 @@ class Threats:
         cls.get_threat_map_black()
         return cls.THREAT_MAP_WHITE,cls.THREAT_MAP_BLACK
 
-
-    def square_attacked_by_black(sq: int) -> bool:
+    @classmethod
+    def square_attacked_by_black(cls,sq: int) -> bool:
         if mo.Pawn_attacks_eat_black(sq)    & b.PIECE_DICT[b.BP]: return True
         if mo.Knight_attacks(sq)            & b.PIECE_DICT[b.BN]: return True
         if mo.Bishop_attack(sq)             & (b.PIECE_DICT[b.BB] | b.PIECE_DICT[b.BQ]): return True
         if mo.Rook_attack(sq)               & (b.PIECE_DICT[b.BR] | b.PIECE_DICT[b.BQ]): return True
-        if mo.King_attack_black(sq)         & b.PIECE_DICT[b.BK]: return True
+        if mo.King_attack_no_castling(sq)         & b.PIECE_DICT[b.BK]: return True
         return False
-
-    def square_attacked_by_white(sq: int) -> bool:
+    
+    @classmethod
+    def square_attacked_by_white(cls,sq: int) -> bool:
         if mo.Pawn_attacks_eat_white(sq)    & b.PIECE_DICT[b.WP]: return True
         if mo.Knight_attacks(sq)            & b.PIECE_DICT[b.WN]: return True
         if mo.Bishop_attack(sq)             & (b.PIECE_DICT[b.WB] | b.PIECE_DICT[b.WQ]): return True
         if mo.Rook_attack(sq)               & (b.PIECE_DICT[b.WR] | b.PIECE_DICT[b.WQ]): return True
-        if mo.King_attack_white(sq)               & b.PIECE_DICT[b.WK]: return True
+        if mo.King_attack_no_castling(sq)               & b.PIECE_DICT[b.WK]: return True
         return False

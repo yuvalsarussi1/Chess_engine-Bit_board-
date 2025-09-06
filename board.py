@@ -2,7 +2,8 @@ import bitboard as b
 import threats as th
 import utils as u
 import moves as mo
-
+import move_record as mr
+import castling as ca
 class Board:
     def __init__(self):
         self.reset()
@@ -40,33 +41,50 @@ class Board:
         rows = [lst[i:i+8] for i in range(0, len(lst), 8)]
         if top_down:
             rows = rows[::-1]
-        for row in rows:
-            print(" ".join(b.PIECE_TO_CHAR[p] for p in row))
+
+        # Column labels
+        col_labels = "  " + " ".join("abcdefgh")
+        print(" ",col_labels)
+        print(" +-----------------+")
+
+        for i, row in enumerate(rows):
+            # Row numbers (8 down to 1 if top_down is True)
+            row_num = 8 - i if top_down else i + 1
+            row_str = " ".join(b.PIECE_TO_CHAR[p] for p in row)
+            print(f"{row_num} | {row_str} | {row_num}")
+        print(" +-----------------+")
+        print(" ",col_labels)
 
 
     
+
+
+    def in_check_white(king_sq: int) -> bool:
+        if b.PAWN_MASK_EAT_BLACK[king_sq] & b.PIECE_DICT[b.BP]: return True
+        if b.KNIGHT_MASK[king_sq]        & b.PIECE_DICT[b.BN]: return True
+        if mo.Bishop_attack(king_sq)     & (b.PIECE_DICT[b.BB] | b.PIECE_DICT[b.BQ]): return True
+        if mo.Rook_attack(king_sq)       & (b.PIECE_DICT[b.BR] | b.PIECE_DICT[b.BQ]): return True
+        if b.KING_MASK[king_sq]          & b.PIECE_DICT[b.BK]: return True
+        return False
+
+    def in_check_black(king_sq: int) -> bool:
+        if b.PAWN_MASK_EAT_WHITE[king_sq] & b.PIECE_DICT[b.WP]: return True
+        if b.KNIGHT_MASK[king_sq]         & b.PIECE_DICT[b.WN]: return True
+        if mo.Bishop_attack(king_sq)      & (b.PIECE_DICT[b.WB] | b.PIECE_DICT[b.WQ]): return True
+        if mo.Rook_attack(king_sq)        & (b.PIECE_DICT[b.WR] | b.PIECE_DICT[b.WQ]): return True
+        if b.KING_MASK[king_sq]           & b.PIECE_DICT[b.WK]: return True
+        return False
+
+
+
     def Check_state(side: int) -> bool:
-        
-        king_sq = b.WHITE_KING_SQ if side == 0 else b.BLACK_KING_SQ
-
-        if side == 0:  # white to move → is white king attacked?
-            if (mo.Pawn_attacks_eat_black(king_sq) & b.PIECE_DICT[b.BP]): return True
-            if (mo.Knight_attacks(king_sq) & b.PIECE_DICT[b.BN]): return True
-            if (mo.Bishop_attack(king_sq) & (b.PIECE_DICT[b.BB] | b.PIECE_DICT[b.BQ])): return True
-            if (mo.Rook_attack(king_sq) & (b.PIECE_DICT[b.BR] | b.PIECE_DICT[b.BQ])): return True
-            if (mo.King_attack_white(king_sq) & b.PIECE_DICT[b.BK]): return True
-            return False
-
-        else:  # black to move → is black king attacked?
-            if (mo.Pawn_attacks_eat_white(king_sq) & b.PIECE_DICT[b.WP]): return True
-            if (mo.Knight_attacks(king_sq) & b.PIECE_DICT[b.WN]): return True
-            if (mo.Bishop_attack(king_sq) & (b.PIECE_DICT[b.WB] | b.PIECE_DICT[b.WQ])): return True
-            if (mo.Rook_attack(king_sq) & (b.PIECE_DICT[b.WR] | b.PIECE_DICT[b.WQ])): return True
-            if (mo.King_attack_black(king_sq) & b.PIECE_DICT[b.WK]): return True
-            return False
+        return Board.in_check_white(b.WHITE_KING_SQ) if side == 0 else Board.in_check_black(b.BLACK_KING_SQ)
 
 
-    def Move_attacker(from_sq: int, to_sq: int):
+
+
+
+    def Move_attacker(from_sq: int, to_sq: int, flags = mr.MoveRecord.NONE_FLAG):
         from_mask = 1 << from_sq
         to_mask   = 1 << to_sq
 
@@ -92,13 +110,14 @@ class Board:
         b.ALL_OCCUPANCY ^= from_mask
         b.ALL_OCCUPANCY |= to_mask
 
+        # --- update color occupancies incrementally ---
         if moved_piece <= b.WK:  # white moved
             b.WHITE_OCCUPANCY ^= from_mask
             b.WHITE_OCCUPANCY |= to_mask
         else:                    # black moved
             b.BLACK_OCCUPANCY ^= from_mask
             b.BLACK_OCCUPANCY |= to_mask
-
+        # --- update color occupancies for captured piece ---
         if captured_piece != b.E:
             if captured_piece <= b.WK:
                 b.WHITE_OCCUPANCY ^= to_mask
@@ -106,13 +125,38 @@ class Board:
                 b.BLACK_OCCUPANCY ^= to_mask
         
 
-        # Move_record = (from_sq, to_sq, moved_piece, captured_piece)
-        # b.MOVE_HISTORY.append(Move_record)
 
+
+        if moved_piece == b.WK and from_sq == 4 and to_sq in (6, 2):
+            flags = mr.MoveRecord.CASTLE_FLAG
+        elif moved_piece == b.BK and from_sq == 60 and to_sq in (62, 58):
+            flags = mr.MoveRecord.CASTLE_FLAG
+        else:
+            flags = mr.MoveRecord.NONE_FLAG
+
+        if flags == mr.MoveRecord.CASTLE_FLAG:
+            if moved_piece == b.WK:
+                ca.Execute_castling(0, kingside=(to_sq == 6))
+            else:
+                ca.Execute_castling(1, kingside=(to_sq == 62))
+
+
+    
+        Move_record = mr.MoveRecord(from_sq, to_sq, moved_piece, captured_piece, flags)
+        b.MOVE_HISTORY.append(Move_record)
+        # print(f"Move debug: from={from_sq}, to={to_sq}, moved_piece={moved_piece}, captured_piece={captured_piece}")
+        
+        
+        
         return moved_piece, captured_piece
 
 
-    def Undo_move(from_sq: int, to_sq: int, moved_piece: int, captured_piece: int):
+    def Undo_move():
+        record = b.MOVE_HISTORY.pop()
+        from_sq, to_sq = record.from_sq, record.to_sq
+        moved_piece, captured_piece = record.moved_piece, record.captured_piece
+        flags = record.flags
+        
         from_mask = 1 << from_sq
         to_mask   = 1 << to_sq
 
@@ -153,7 +197,8 @@ class Board:
                 b.BLACK_OCCUPANCY |= to_mask
 
 
-
+        if flags == mr.MoveRecord.CASTLE_FLAG:
+            ca.Restore_castling(moved_piece, to_sq)
 
 
 

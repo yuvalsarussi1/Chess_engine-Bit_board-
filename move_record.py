@@ -2,9 +2,9 @@
 
 class MoveRecord:
     NONE_FLAG = 0
-    EN_PASSANT = 1
-    CASTLING = 2
-    PROMOTION = 3
+    EN_PASSANT_FLAG = 1
+    CASTLE_FLAG = 2
+    PROMOTION_FLAG = 3
     
     def __init__(self, from_sq, to_sq, moved_piece, captured_piece, flags = 0,):
         self.from_sq = from_sq

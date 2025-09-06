@@ -4,14 +4,11 @@ from board import *
 
 
 
-BIT_TO_INDEX = {1 << sq: sq for sq in range(64)}
-def From_mask_to_coords(mask: int) ->int:
-    coords = []
+def iter_bits(mask: int):
     while mask:
         lsb = mask & -mask
-        coords.append(BIT_TO_INDEX[lsb])
+        yield lsb.bit_length() - 1   # directly compute index
         mask ^= lsb
-    return coords
 
 
 MOVES_DICT = {}    
@@ -26,20 +23,30 @@ def All_Move_generate():
             piece_mask ^= lsb
             moves = mo.Piece_move(sq)
             MOVES_DICT[sq] = moves
+    
 
 
 
 def Has_legal_move(side):
     legal_moves = 0
     for from_sq,from_mask in MOVES_DICT.items():
-        coords = From_mask_to_coords(from_mask)
-        for to_sq in coords:
-            moved_piece = b.SQUARE_MAP[from_sq] #can be str(piece_name)
-            captured_piece = b.SQUARE_MAP[to_sq] #can be str(piece_name) or str(".")
- 
+        for to_sq in iter_bits(from_mask):
             Board.Move_attacker(from_sq,to_sq)
             if not Board.Check_state(side):
                 legal_moves += 1
-            Board.Undo_move(from_sq,to_sq,moved_piece,captured_piece)
+            Board.Undo_move()
 
     return legal_moves
+
+
+
+def Has_legal_move_no_counter(side):
+    for from_sq,from_mask in MOVES_DICT.items():
+        for to_sq in iter_bits(from_mask):
+            Board.Move_attacker(from_sq,to_sq)
+            if not Board.Check_state(side):
+                Board.Undo_move()
+                return True   # found one legal move
+            Board.Undo_move()
+
+    return False
