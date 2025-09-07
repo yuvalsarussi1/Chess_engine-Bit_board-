@@ -10,6 +10,9 @@ b.init_Rook_mask()
 b.init_Bishop_mask()
 b.init_Queen_mask()
 
+b.init_Pawn_enpassant_mask()
+
+
 """Same as piece mask but without the edges"""
 b.init_Rook_exclude_edges()
 b.init_Bishop_exclude_edges()

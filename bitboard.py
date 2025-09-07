@@ -49,7 +49,7 @@ WHITE_QUEENSIDE_EMPTY  = (1 << 1) | (1 << 2) | (1 << 3)
 BLACK_KINGSIDE_EMPTY   = (1 << 61) | (1 << 62)          
 BLACK_QUEENSIDE_EMPTY  = (1 << 57) | (1 << 58) | (1 << 59) 
 
-
+EN_PASSANT_SQ = -1
 
 
 
@@ -156,7 +156,6 @@ def init_Pawn_mask():
         if y < 7:
             PAWN_MASK_WALK_WHITE[num] |= (1 << ((y+1)*8 + x))
             if y == 1:
-                PAWN_MASK_ENPASSANT_WHITE[num] |= (1 << ((y+2)*8 + x))
                 PAWN_MASK_DOUBLE_WHITE[num] |= (1 << ((y+2)*8 + x))
             if x > 0:
                 PAWN_MASK_EAT_WHITE[num] |= (1 << ((y+1)*8 + (x-1)))
@@ -167,13 +166,30 @@ def init_Pawn_mask():
         if y > 0:
             PAWN_MASK_WALK_BLACK[num] |= (1 << ((y-1)*8 + x))
             if y == 6:
-                PAWN_MASK_ENPASSANT_BLACK[num] |= (1 << ((y-2)*8 + x))
                 PAWN_MASK_DOUBLE_BLACK[num] |= (1 << ((y-2)*8 + x))
             if x > 0:
                 PAWN_MASK_EAT_BLACK[num] |= (1 << ((y-1)*8 + (x-1)))
             if x < 7:
                 PAWN_MASK_EAT_BLACK[num] |= (1 << ((y-1)*8 + (x+1)))
         
+
+
+def init_Pawn_enpassant_mask():
+    for num in range(64):
+        x = num % 8
+        y = num // 8
+        if y == 4:
+            if x > 0:
+                PAWN_MASK_ENPASSANT_WHITE[num] |= (1 << ((y+1)*8 + (x-1)))
+            if x < 7:    
+                PAWN_MASK_ENPASSANT_WHITE[num] |= (1 << ((y+1)*8 + (x + 1)))
+        if y == 3:
+            if x > 0:
+                PAWN_MASK_ENPASSANT_BLACK[num] |= (1 << ((y-1)*8 + (x-1)))
+            if x < 7:    
+                PAWN_MASK_ENPASSANT_BLACK[num] |= (1 << ((y-1)*8 + (x + 1)))
+        
+
 ROOK_MASK = [0]*64
 def init_Rook_mask():
     directions = [(1,0),(0,1),(-1,0),(0,-1)]

@@ -20,4 +20,9 @@ class MoveRecord:
                 f"is_castling={self.is_castling}, en_passant_square={self.en_passant_square})")
 
     
-        
+class En_passant:
+    def __init__(self,R_cell,L_cell,condition):
+        self.R_cell = R_cell
+        self.L_cell = L_cell
+        self.codition = False
+    

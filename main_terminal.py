@@ -5,7 +5,7 @@ from moves import *
 import threats as th
 import bitboard as b
 import magic as m
-import checkmate as ch
+import legal_moves as ch
 import time
 import castling as ca
 Board.Fresh_reset()
@@ -14,12 +14,7 @@ Board.Update_occupancy()
 # print(check)
 
 
-#castling triger works but not executed in the move function
-#need a way to tell if the move is castling or not
-
-
-
-
+#1 en_passant worked only when move_genarate is on
 
 while True:#========================Pick_side==================
     side = int(input("Choose side:"))
@@ -52,6 +47,8 @@ while True:#========================Game_loop==================
 #=========================ENTER CAPTURE SQUARE COORD===============
     to_sq = input ("Choose square:")
     to_sq = coord_converter_num(to_sq) #=square_index not bit 
+    
+    
     if to_sq is False:
         print("Invalid Input")
         continue
@@ -80,7 +77,8 @@ while True:#========================Game_loop==================
         print("Illegal move! You cannot leave your king in check.")
         Board.Undo_move(from_sq, to_sq, moved_piece, captured_piece)
         continue   # ask player for another move
-
+    
+    ca.Piece_moved(from_sq,moved_piece) # update castling rights
 
 #========================= Change side ========================
     side = Side_change(side)
@@ -98,13 +96,13 @@ while True:#========================Game_loop==================
             print("check but not mate")
             print("Legal moves:", All_legal_moves)
             continue
-    else:
+    # else:
         
-        ch.All_Move_generate()
-        All_legal_moves = ch.Has_legal_move_no_counter(side)
-        if All_legal_moves == False:
-            print("stalemate!")
-            break
+    #     ch.All_Move_generate()
+    #     All_legal_moves = ch.Has_legal_move_no_counter(side)
+    #     if All_legal_moves == False:
+    #         print("stalemate!")
+    #         break
             
     
 #================================================
@@ -116,13 +114,13 @@ while True:#========================Game_loop==================
 
 
 
-    start = time.perf_counter()
-    N = 1000
-    for _ in range(N):
-        ch.All_Move_generate()
-        ch.Has_legal_move_no_counter('w')  # or 'b'
-    end = time.perf_counter()
-    print(f"{N / (end-start):,.0f} positions/sec")
+    # start = time.perf_counter()
+    # N = 1000
+    # for _ in range(N):
+    #     ch.All_Move_generate()
+    #     ch.Has_legal_move_no_counter('w')  # or 'b'
+    # end = time.perf_counter()
+    # print(f"{N / (end-start):,.0f} positions/sec")
 
 
         

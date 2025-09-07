@@ -11,6 +11,21 @@ def iter_bits(mask: int):
         mask ^= lsb
 
 
+def index_to_square(index: int) -> str:
+    file = chr((index % 8) + ord('a'))
+    rank = str((index // 8) + 1)
+    return file + rank
+
+PIECE_NAMES = {
+    b.WP: "P", b.WN: "N", b.WB: "B", b.WR: "R", b.WQ: "Q", b.WK: "K",
+    b.BP: "p", b.BN: "n", b.BB: "b", b.BR: "r", b.BQ: "q", b.BK: "k",
+    b.E:  "."
+}
+
+
+
+
+
 MOVES_DICT = {}    
 def All_Move_generate():
     global MOVES_DICT
@@ -24,8 +39,10 @@ def All_Move_generate():
             moves = mo.Piece_move(sq)
             MOVES_DICT[sq] = moves
     
-
-
+            # if moves:
+            #     move_list = list(iter_bits(moves))
+            #     piece_name = PIECE_NAMES.get(sym, str(sym))
+            #     print(f"{piece_name} at {index_to_square(sq)} → {[index_to_square(m) for m in move_list]}")
 
 def Has_legal_move(side):
     legal_moves = 0

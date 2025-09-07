@@ -4,6 +4,9 @@ import utils as u
 import moves as mo
 import move_record as mr
 import castling as ca
+import en_passant as en
+
+
 class Board:
     def __init__(self):
         self.reset()
@@ -88,8 +91,23 @@ class Board:
         from_mask = 1 << from_sq
         to_mask   = 1 << to_sq
 
+
         moved_piece = b.SQUARE_MAP[from_sq]
         captured_piece = b.SQUARE_MAP[to_sq]
+
+
+        # --- special flags ---
+        if moved_piece == b.WK and from_sq == 4 and to_sq in (6, 2):
+            flags = mr.MoveRecord.CASTLE_FLAG
+        elif moved_piece == b.BK and from_sq == 60 and to_sq in (62, 58):
+            flags = mr.MoveRecord.CASTLE_FLAG
+        elif moved_piece == b.WP and to_sq == b.EN_PASSANT_SQ and captured_piece == b.E:
+            flags = mr.MoveRecord.EN_PASSANT_FLAG
+        elif moved_piece == b.BP and to_sq == b.EN_PASSANT_SQ and captured_piece == b.E:
+            flags = mr.MoveRecord.EN_PASSANT_FLAG
+        else:
+            flags = mr.MoveRecord.NONE_FLAG
+
 
         if moved_piece == b.WK:
             b.WHITE_KING_SQ = to_sq
@@ -124,21 +142,29 @@ class Board:
             else:
                 b.BLACK_OCCUPANCY ^= to_mask
         
-
-
-
-        if moved_piece == b.WK and from_sq == 4 and to_sq in (6, 2):
-            flags = mr.MoveRecord.CASTLE_FLAG
-        elif moved_piece == b.BK and from_sq == 60 and to_sq in (62, 58):
-            flags = mr.MoveRecord.CASTLE_FLAG
-        else:
-            flags = mr.MoveRecord.NONE_FLAG
+        
+        # --- update en passant square only if pawn double pushed ---
+        ep_sq = -1
+        if moved_piece == b.WP:
+            ep_sq = en.en_passant_condition_1(from_sq, to_sq,moved_piece)
+        elif moved_piece == b.BP:
+            ep_sq = en.en_passant_condition_1(from_sq, to_sq,moved_piece)
+        en.assign_en_passant_sq(ep_sq)
 
         if flags == mr.MoveRecord.CASTLE_FLAG:
             if moved_piece == b.WK:
                 ca.Execute_castling(0, kingside=(to_sq == 6))
             else:
                 ca.Execute_castling(1, kingside=(to_sq == 62))
+
+        elif flags == mr.MoveRecord.EN_PASSANT_FLAG:
+            if moved_piece == b.WP:
+                en.en_passant_execute(from_sq,to_sq,0)
+            
+            else:
+                en.en_passant_execute(from_sq,to_sq,1)
+
+
 
 
     
@@ -199,7 +225,14 @@ class Board:
 
         if flags == mr.MoveRecord.CASTLE_FLAG:
             ca.Restore_castling(moved_piece, to_sq)
+            return 
 
+        if flags == mr.MoveRecord.EN_PASSANT_FLAG:
+            if moved_piece == b.WP:
+                en.en_passant_undo(from_sq, to_sq, 0)  # White undo
+            else:  # b.BP
+                en.en_passant_undo(from_sq, to_sq, 1)  # Black undo
+            return
 
 
 

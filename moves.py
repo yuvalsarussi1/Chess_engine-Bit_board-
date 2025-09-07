@@ -1,7 +1,7 @@
 import bitboard as b
 import magic as m
 import castling as ca
-
+import en_passant as en
 #condition_1 = ligal piece move
 
 #==========================================Pieces attack index return=================================================
@@ -29,6 +29,24 @@ def Pawn_double_black(square_num: int) -> int:
         if (one_step & ~b.ALL_OCCUPANCY) and (two_step & ~b.ALL_OCCUPANCY):
             return two_step
     return 0
+
+
+def Pawn_en_passant_white(square_num: int) -> int:
+        if b.EN_PASSANT_SQ == -1:return False    
+        
+        if b.PAWN_MASK_ENPASSANT_WHITE[square_num] & (1 << b.EN_PASSANT_SQ):
+            print(1 << b.EN_PASSANT_SQ)
+            return (1 << b.EN_PASSANT_SQ)
+        return 0
+
+def Pawn_en_passant_black(square_num: int) -> int:
+        if b.EN_PASSANT_SQ == -1:return False
+        if b.PAWN_MASK_ENPASSANT_BLACK[square_num] & (1 << b.EN_PASSANT_SQ):
+            print(1 << b.EN_PASSANT_SQ)
+            return (1 << b.EN_PASSANT_SQ)
+        return 0
+
+
 
 
 def Knight_attacks(square_num: int) -> int:
@@ -97,7 +115,9 @@ PIECE_ATTACKS[b.BK] = King_attack_no_castling
 PIECE_MOVES[b.WP] = lambda sq: (
     (Pawn_walk_white(sq) & ~b.ALL_OCCUPANCY) |
     (Pawn_double_white(sq) & ~b.ALL_OCCUPANCY) |
-    (Pawn_attacks_eat_white(sq) & b.BLACK_OCCUPANCY)
+    (Pawn_attacks_eat_white(sq) & b.BLACK_OCCUPANCY) |
+    (Pawn_en_passant_white(sq))
+
 )
 PIECE_MOVES[b.WN] = lambda sq: Knight_attacks(sq) & ~b.WHITE_OCCUPANCY
 PIECE_MOVES[b.WB] = lambda sq: Bishop_attack(sq) & ~b.WHITE_OCCUPANCY
@@ -109,7 +129,8 @@ PIECE_MOVES[b.WK] = lambda sq: King_attack_white(sq)   & ~b.WHITE_OCCUPANCY
 PIECE_MOVES[b.BP] = lambda sq: (
     (Pawn_walk_black(sq) & ~b.ALL_OCCUPANCY) |
     (Pawn_double_black(sq) & ~b.ALL_OCCUPANCY) |
-    (Pawn_attacks_eat_black(sq) & b.WHITE_OCCUPANCY)
+    (Pawn_attacks_eat_black(sq) & b.WHITE_OCCUPANCY) | 
+    (Pawn_en_passant_black(sq))
 )
 PIECE_MOVES[b.BN] = lambda sq: Knight_attacks(sq) & ~b.BLACK_OCCUPANCY
 PIECE_MOVES[b.BB] = lambda sq: Bishop_attack(sq) & ~b.BLACK_OCCUPANCY
@@ -129,9 +150,9 @@ def Piece_attack(from_sq: int):
     # print(PIECE_ATTACKS[piece](from_sq),"CHECK ATTACKS")
     return PIECE_ATTACKS[piece](from_sq)
 
-def Valid_attack(attacks: int, target):
-    target_index = (1 << target)
-    if attacks & target_index:
+def Valid_attack(action: int, to_sq):
+    target_index = (1 << to_sq)
+    if action & target_index:
         return True
     else:
         return False
