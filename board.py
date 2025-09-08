@@ -11,34 +11,30 @@ class Board:
     def __init__(self):
         self.reset()
 
+#=====================START BOARD AND PIECES DEF=====================
     @staticmethod
     def Fresh_reset():
-        
         for square_1 in range(8):
             #PIECE_DICT --> (P:1 << 8)
             b.PIECE_DICT[b.WP] |= (1 << (8 + square_1))
             b.PIECE_DICT[b.BP] |= (1 << (48 + square_1))
-            
             b.PIECE_DICT[b.WHITE_ROW1_PIECES[square_1]] |= (1 << square_1) 
             b.PIECE_DICT[b.BLACK_ROW1_PIECES[square_1]] |= (1 << (56 + square_1)) 
-
     @staticmethod
     def Update_occupancy():
         #Creat the occupancy or update it
         global WHITE_OCCUPANCY,BLACK_OCCUPANCY,ALL_OCCUPANCY,PIECE_DICT
-
         b.WHITE_OCCUPANCY =  (b.PIECE_DICT[b.WP] | b.PIECE_DICT[b.WN] | b.PIECE_DICT[b.WB]|
                             b.PIECE_DICT[b.WR] | b.PIECE_DICT[b.WQ] | b.PIECE_DICT[b.WK])
         b.BLACK_OCCUPANCY =  (b.PIECE_DICT[b.BP] | b.PIECE_DICT[b.BN] | b.PIECE_DICT[b.BB]|
                             b.PIECE_DICT[b.BR] | b.PIECE_DICT[b.BQ] | b.PIECE_DICT[b.BK])
         b.ALL_OCCUPANCY   = b.BLACK_OCCUPANCY | b.WHITE_OCCUPANCY
         
-    
+
+
     def piece_exists(square_num: int, occupancy: int) -> bool:
         """Check if a piece exists at the given bit index in the occupancy bitboard."""
         return (occupancy & (1 << square_num)) != 0
-    
-
     
     def print_board_list(lst, top_down=True):
         rows = [lst[i:i+8] for i in range(0, len(lst), 8)]
@@ -59,9 +55,7 @@ class Board:
         print(" ",col_labels)
 
 
-    
-
-
+#=====================CHECK DEF=====================
     def in_check_white(king_sq: int) -> bool:
         if b.PAWN_MASK_EAT_BLACK[king_sq] & b.PIECE_DICT[b.BP]: return True
         if b.KNIGHT_MASK[king_sq]        & b.PIECE_DICT[b.BN]: return True
@@ -78,23 +72,17 @@ class Board:
         if b.KING_MASK[king_sq]           & b.PIECE_DICT[b.WK]: return True
         return False
 
-
-
     def Check_state(side: int) -> bool:
         return Board.in_check_white(b.WHITE_KING_SQ) if side == 0 else Board.in_check_black(b.BLACK_KING_SQ)
 
 
-
-
-
+#=====================MOVE EXECUTE DEF=====================
     def Move_attacker(from_sq: int, to_sq: int, flags = mr.MoveRecord.NONE_FLAG):
         from_mask = 1 << from_sq
         to_mask   = 1 << to_sq
-
-
+        old_ep = b.EN_PASSANT_SQ
         moved_piece = b.SQUARE_MAP[from_sq]
         captured_piece = b.SQUARE_MAP[to_sq]
-
 
         # --- special flags ---
         if moved_piece == b.WK and from_sq == 4 and to_sq in (6, 2):
@@ -108,7 +96,7 @@ class Board:
         else:
             flags = mr.MoveRecord.NONE_FLAG
 
-
+        # --- assaign king sq ---
         if moved_piece == b.WK:
             b.WHITE_KING_SQ = to_sq
         elif moved_piece == b.BK:
@@ -142,46 +130,26 @@ class Board:
             else:
                 b.BLACK_OCCUPANCY ^= to_mask
         
-        
-        # --- update en passant square only if pawn double pushed ---
-        ep_sq = -1
-        if moved_piece == b.WP:
-            ep_sq = en.en_passant_condition_1(from_sq, to_sq,moved_piece)
-        elif moved_piece == b.BP:
-            ep_sq = en.en_passant_condition_1(from_sq, to_sq,moved_piece)
-        en.assign_en_passant_sq(ep_sq)
-
-        if flags == mr.MoveRecord.CASTLE_FLAG:
-            if moved_piece == b.WK:
-                ca.Execute_castling(0, kingside=(to_sq == 6))
-            else:
-                ca.Execute_castling(1, kingside=(to_sq == 62))
-
-        elif flags == mr.MoveRecord.EN_PASSANT_FLAG:
-            if moved_piece == b.WP:
-                en.en_passant_execute(from_sq,to_sq,0)
-            
-            else:
-                en.en_passant_execute(from_sq,to_sq,1)
-
-
-
-
     
-        Move_record = mr.MoveRecord(from_sq, to_sq, moved_piece, captured_piece, flags)
+        ca.Castling_execute(moved_piece,flags,to_sq)
+        
+        en.Update_en_square(moved_piece,from_sq,to_sq)
+        en.En_passant_execute(moved_piece, flags,from_sq,to_sq)
+        
+        # --- record of moves ---
+        Move_record = mr.MoveRecord(from_sq, to_sq, moved_piece, captured_piece, old_ep ,flags)
         b.MOVE_HISTORY.append(Move_record)
         # print(f"Move debug: from={from_sq}, to={to_sq}, moved_piece={moved_piece}, captured_piece={captured_piece}")
         
-        
-        
         return moved_piece, captured_piece
-
 
     def Undo_move():
         record = b.MOVE_HISTORY.pop()
         from_sq, to_sq = record.from_sq, record.to_sq
         moved_piece, captured_piece = record.moved_piece, record.captured_piece
         flags = record.flags
+    
+        b.EN_PASSANT_SQ =  record.en_sq
         
         from_mask = 1 << from_sq
         to_mask   = 1 << to_sq
@@ -190,7 +158,6 @@ class Board:
             b.WHITE_KING_SQ = from_sq
         elif moved_piece == b.BK:
             b.BLACK_KING_SQ = from_sq
-
 
 
         # --- restore moved piece ---

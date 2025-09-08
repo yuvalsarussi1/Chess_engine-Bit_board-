@@ -57,7 +57,6 @@ def Valid_piece(square_num: int,side) -> bool:
      else:    
         return False
     
-
 def Side_pick(side):
      if side == 0:
           return 0
@@ -79,7 +78,6 @@ def Score_change(to_sq: int,side: bool):#not working with en_passant
           b.WHITE_SCORE += b.PIECE_SCORES[piece]
     if side == 1:
           b.BLACK_SCORE += b.PIECE_SCORES[piece]
-
 
 def attacks_of_piece(piece, square):
     return mo.PIECE_ATTACKS[piece](square)

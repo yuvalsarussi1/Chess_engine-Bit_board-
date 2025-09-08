@@ -1,7 +1,6 @@
 # import magic as m
 import bitboard as b
 import magic as m
-import random
 """Creating all the walkable squares from each square for every piece """
 b.init_Knight_mask()
 b.init_Pawn_mask()

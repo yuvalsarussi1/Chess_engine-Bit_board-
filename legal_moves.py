@@ -2,6 +2,11 @@ import bitboard as b
 import moves as mo
 from board import *
 
+PIECE_NAMES = {
+    b.WP: "P", b.WN: "N", b.WB: "B", b.WR: "R", b.WQ: "Q", b.WK: "K",
+    b.BP: "p", b.BN: "n", b.BB: "b", b.BR: "r", b.BQ: "q", b.BK: "k",
+    b.E:  "."
+}
 
 
 def iter_bits(mask: int):
@@ -10,26 +15,15 @@ def iter_bits(mask: int):
         yield lsb.bit_length() - 1   # directly compute index
         mask ^= lsb
 
-
 def index_to_square(index: int) -> str:
     file = chr((index % 8) + ord('a'))
     rank = str((index // 8) + 1)
     return file + rank
 
-PIECE_NAMES = {
-    b.WP: "P", b.WN: "N", b.WB: "B", b.WR: "R", b.WQ: "Q", b.WK: "K",
-    b.BP: "p", b.BN: "n", b.BB: "b", b.BR: "r", b.BQ: "q", b.BK: "k",
-    b.E:  "."
-}
-
-
-
-
-
 MOVES_DICT = {}    
 def All_Move_generate():
     global MOVES_DICT
-    MOVES_DICT = {}    
+    MOVES_DICT = {}   
     for sym in b.PIECES_TURN:                               # List of pieces for spacific turn
         piece_mask = b.PIECE_DICT[sym]                  # Coords based on symbol(can be more then one)
         while piece_mask:
@@ -55,15 +49,17 @@ def Has_legal_move(side):
 
     return legal_moves
 
-
-
 def Has_legal_move_no_counter(side):
-    for from_sq,from_mask in MOVES_DICT.items():
-        for to_sq in iter_bits(from_mask):
-            Board.Move_attacker(from_sq,to_sq)
+    for from_sq, from_mask in MOVES_DICT.items():
+        m = from_mask
+        while m:
+            lsb = m & -m
+            to_sq = lsb.bit_length() - 1
+            m ^= lsb
+
+            Board.Move_attacker(from_sq, to_sq)
             if not Board.Check_state(side):
                 Board.Undo_move()
-                return True   # found one legal move
+                return True
             Board.Undo_move()
-
     return False

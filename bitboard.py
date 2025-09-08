@@ -51,10 +51,6 @@ BLACK_QUEENSIDE_EMPTY  = (1 << 57) | (1 << 58) | (1 << 59)
 
 EN_PASSANT_SQ = -1
 
-
-
-
-
 LIGHT_SQUARE = 0x55aa55aa55aa55aa
 DARK_SQUARE = 0xaa55aa55aa55aa55
 
@@ -136,10 +132,6 @@ def init_King_mask():
                 KING_MASK[num] |= (1 << (dy + y)*8 + (dx + x))
 
     
-
-
-
-
 PAWN_MASK_WALK_WHITE = [0]*64
 PAWN_MASK_EAT_WHITE  = [0]*64
 PAWN_MASK_ENPASSANT_WHITE = [0]*64
@@ -237,9 +229,6 @@ def init_Queen_mask():
                 cx += dx
                 cy += dy
 
-
-#===========================================================================================
-
 #==========================================Exclude Edges Pieces Mask=================================================
 
 """Same as piece mask but without the edges"""
@@ -285,9 +274,6 @@ def init_Queen_exclude_edges():
     for i in range(64):
         QUEEN_EXCLUDE_EDGES[i] = ROOK_EXCLUDE_EDGES[i] | BISHOP_EXCLUDE_EDGES[i]
 
-
-#===========================================================================================
-
 #==========================================blocker subsets=================================================
 
 """Creating all the possible subset from each square for sliding pieces"""
@@ -314,10 +300,8 @@ def init_Bishop_blocker_subset_build():
             if subset == 0:
                 break
             
-
 """ QUEEN --> Will combine both Bishop and Rook subset"""
 """ Making Queen subset will make millions of subset  """
-
 
 #===========================================================================================
 

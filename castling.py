@@ -2,6 +2,8 @@ import bitboard as b
 import moves as mo
 import threats as th
 import board as bo
+import castling as ca
+import move_record as mr
 
 def Piece_moved(from_sq: int,moved_piece: int):
     if moved_piece not in (b.WK,b.WR,b.BK,b.BR): return False
@@ -168,3 +170,13 @@ def castling_trigger(from_sq: int,to_sq: int,moved_piece: int):
         Execute_castling(1, kingside=True)
     elif moved_piece == b.BK and from_sq == 60 and to_sq == 58:
         Execute_castling(1, kingside=False)
+
+
+
+def Castling_execute(moved_piece, flags,to_sq):
+    if flags == mr.MoveRecord.CASTLE_FLAG:
+            if moved_piece == b.WK:
+                ca.Execute_castling(0, kingside=(to_sq == 6))
+            else:
+                ca.Execute_castling(1, kingside=(to_sq == 62))
+

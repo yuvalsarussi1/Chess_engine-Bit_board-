@@ -2,7 +2,6 @@ import bitboard as b
 import magic as m
 import castling as ca
 import en_passant as en
-#condition_1 = ligal piece move
 
 #==========================================Pieces attack index return=================================================
 def Pawn_attacks_eat_white(square_num: int) -> int:
@@ -33,12 +32,10 @@ def Pawn_double_black(square_num: int) -> int:
 
 def Pawn_en_passant_white(square_num: int) -> int:
         if b.EN_PASSANT_SQ == -1:return False    
-        
         if b.PAWN_MASK_ENPASSANT_WHITE[square_num] & (1 << b.EN_PASSANT_SQ):
             print(1 << b.EN_PASSANT_SQ)
             return (1 << b.EN_PASSANT_SQ)
         return 0
-
 def Pawn_en_passant_black(square_num: int) -> int:
         if b.EN_PASSANT_SQ == -1:return False
         if b.PAWN_MASK_ENPASSANT_BLACK[square_num] & (1 << b.EN_PASSANT_SQ):
@@ -46,27 +43,18 @@ def Pawn_en_passant_black(square_num: int) -> int:
             return (1 << b.EN_PASSANT_SQ)
         return 0
 
-
-
-
 def Knight_attacks(square_num: int) -> int:
    return b.KNIGHT_MASK[square_num]
 
 
-
-
 def King_attack_no_castling(square_num: int) -> int:
     return b.KING_MASK[square_num]
-
-
 def King_attack_white(square_num: int) -> int:
     if ca.castling_condition_King_side(square_num):
         return (b.KING_MASK[square_num] | b.KING_SIDE_CASTLING_MASK_WHITE)
     if ca.castling_condition_Queen_side(square_num):
         return (b.KING_MASK[square_num] | b.QUEEN_SIDE_CASTLING_MASK_WHITE)
     return b.KING_MASK[square_num]
-
-
 def King_attack_black(square_num: int) -> int:
     if ca.castling_condition_King_side(square_num):
         return (b.KING_MASK[square_num] | b.KING_SIDE_CASTLING_MASK_BLACK)
@@ -76,21 +64,14 @@ def King_attack_black(square_num: int) -> int:
 
 
 
-
-
-
 def Rook_attack(square_num: int) -> int:
     occ = b.ALL_OCCUPANCY & b.ROOK_EXCLUDE_EDGES[square_num]
     index = ((occ * m.MAGIC_NUMBER_ROOK_LIST[square_num]) & ((1 << 64) - 1)) >> (64 - m.ROOK_RELEVANT_BITS[square_num])
     return m.MAGIC_ATTACKS_ROOK[square_num][index]
-
-
 def Bishop_attack(square_num: int) -> int:
     occ = b.ALL_OCCUPANCY & b.BISHOP_EXCLUDE_EDGES[square_num]
     index = ((occ * m.MAGIC_NUMBER_BISHOP_LIST[square_num]) & ((1 << 64) - 1)) >> (64 - m.BISHOP_RELEVANT_BITS[square_num])
     return m.MAGIC_ATTACKS_BISHOP[square_num][index]
-
-
 def Queen_attack(square_num: int) -> int:
     return Rook_attack(square_num) | Bishop_attack(square_num)
 #===========================================================================================
@@ -137,8 +118,6 @@ PIECE_MOVES[b.BB] = lambda sq: Bishop_attack(sq) & ~b.BLACK_OCCUPANCY
 PIECE_MOVES[b.BR] = lambda sq: Rook_attack(sq)   & ~b.BLACK_OCCUPANCY
 PIECE_MOVES[b.BQ] = lambda sq: Queen_attack(sq)  & ~b.BLACK_OCCUPANCY
 PIECE_MOVES[b.BK] = lambda sq: King_attack_black(sq)   & ~b.BLACK_OCCUPANCY
-
-
 
 
 def Piece_move(from_sq: int):
