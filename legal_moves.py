@@ -63,3 +63,41 @@ def Has_legal_move_no_counter(side):
                 return True
             Board.Undo_move()
     return False
+
+
+
+
+
+
+def Has_legal_move_no_counter_debug(side):
+    print("=== DEBUG: Checking all moves for side", side, "===")
+    legal_moves = []
+
+    for from_sq, from_mask in MOVES_DICT.items():
+        m = from_mask
+        while m:
+            lsb = m & -m
+            to_sq = lsb.bit_length() - 1
+            m ^= lsb
+
+            moved_piece = b.SQUARE_MAP[from_sq]
+            moving_side = 0 if moved_piece <= b.WK else 1
+
+            print(f"Trying move {index_to_square(from_sq)} → {index_to_square(to_sq)} "
+                  f"({moved_piece}), side={moving_side}")
+
+            # Execute
+            Board.Move_attacker(from_sq, to_sq)
+
+            in_check = Board.Check_state(moving_side)
+            if not in_check:
+                print("   ✅ Legal move")
+                legal_moves.append((from_sq, to_sq, moved_piece))
+            else:
+                print("   ❌ Illegal move")
+
+            # Undo and continue
+            Board.Undo_move()
+
+    print(f"=== DEBUG: Found {len(legal_moves)} legal moves for side {side} ===")
+    return legal_moves
