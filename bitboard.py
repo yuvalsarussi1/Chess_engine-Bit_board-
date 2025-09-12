@@ -12,6 +12,7 @@ pieces = ["P", "N", "B", "R", "Q", "K","p", "n", "b", "r", "q", "k"]
 
 E = 2
 E, WP, WN, WB, WR, WQ, WK, BP, BN, BB, BR, BQ, BK = range(13)
+
 PIECE_BITBOARDS = [0] * 13
 
 
@@ -94,8 +95,17 @@ PIECE_SCORES = {
     "k": 0
 }
 
-
-
+PROMOTION_PIECE = -1
+PROMOTION_DICT ={
+    "Q":WQ,
+    "R":WR,
+    "N":WN,
+    "B":WB,
+    "q":BQ,
+    "r":BR,
+    "n":BN,
+    "b":BB
+}
 
 #==========================================General Pieces Mask=================================================
 

@@ -74,7 +74,7 @@ def en_passant_undo(from_sq: int, to_sq: int, side: int):
     to_mask   = 1 << to_sq
 
     if side == 0:  # White had captured black pawn
-        captured_sq   = to_sq + 8
+        captured_sq   = to_sq - 8
         captured_mask = 1 << captured_sq
 
         # Restore white pawn
@@ -95,7 +95,7 @@ def en_passant_undo(from_sq: int, to_sq: int, side: int):
         b.BLACK_OCCUPANCY |= captured_mask
 
     else:  # Black had captured white pawn
-        captured_sq   = to_sq - 8
+        captured_sq   = to_sq + 8
         captured_mask = 1 << captured_sq
 
         # Restore black pawn
@@ -115,18 +115,13 @@ def en_passant_undo(from_sq: int, to_sq: int, side: int):
         b.BLACK_OCCUPANCY |= from_mask
         b.WHITE_OCCUPANCY |= captured_mask
 
-    # Recompute global occupancy
-    b.ALL_OCCUPANCY = b.WHITE_OCCUPANCY | b.BLACK_OCCUPANCY
-
-
 
 def En_passant_execute(moved_piece,flags,from_sq,to_sq):
-    if flags == mr.MoveRecord.EN_PASSANT_FLAG:
-            if moved_piece == b.WP:
-                en_passant_execute(from_sq,to_sq,0)
-            
-            else:
-                en_passant_execute(from_sq,to_sq,1)
+    if moved_piece == b.WP:
+        en_passant_execute(from_sq,to_sq,0)
+    
+    else:
+        en_passant_execute(from_sq,to_sq,1)
 
 
 def Update_en_square(moved_piece,from_sq,to_sq):

@@ -33,13 +33,11 @@ def Pawn_double_black(square_num: int) -> int:
 def Pawn_en_passant_white(square_num: int) -> int:
         if b.EN_PASSANT_SQ == -1:return False    
         if b.PAWN_MASK_ENPASSANT_WHITE[square_num] & (1 << b.EN_PASSANT_SQ):
-            print(1 << b.EN_PASSANT_SQ)
             return (1 << b.EN_PASSANT_SQ)
         return 0
 def Pawn_en_passant_black(square_num: int) -> int:
         if b.EN_PASSANT_SQ == -1:return False
         if b.PAWN_MASK_ENPASSANT_BLACK[square_num] & (1 << b.EN_PASSANT_SQ):
-            print(1 << b.EN_PASSANT_SQ)
             return (1 << b.EN_PASSANT_SQ)
         return 0
 
@@ -51,6 +49,7 @@ def King_attack_no_castling(square_num: int) -> int:
     return b.KING_MASK[square_num]
 def King_attack_white(square_num: int) -> int:
     if ca.castling_condition_King_side(square_num):
+        print(b.KING_MASK[square_num] | b.KING_SIDE_CASTLING_MASK_WHITE)
         return (b.KING_MASK[square_num] | b.KING_SIDE_CASTLING_MASK_WHITE)
     if ca.castling_condition_Queen_side(square_num):
         return (b.KING_MASK[square_num] | b.QUEEN_SIDE_CASTLING_MASK_WHITE)

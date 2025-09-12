@@ -9,8 +9,7 @@ import legal_moves as ch
 import time
 import castling as ca
 
-
-
+    
 Board.Fresh_reset()
 Board.Update_occupancy()
 #========================Pick_side==================
@@ -58,13 +57,25 @@ while True:
 #=========================ASSAIN PIECES========================
     moved_piece = b.SQUARE_MAP[from_sq] # int(piece_name)
     captured_piece = b.SQUARE_MAP[to_sq]# int(piece_name)
+##=========================PROMOTION ASSIGN========================
+    
+    print(moved_piece,"moved_piece")
+
+    if moved_piece in (1,7) and not (7 < to_sq < 56):
+        Promotion_select(side)
+        print(b.PROMOTION_PIECE,"promotion_piece")
+    print("check_dest")
+
+
+
+
+   
 #=========================UPDATE THE PIECES LISTS==================
     Board.Move_attacker(from_sq, to_sq)
-    print(b.ALL_OCCUPANCY)
 #========================= Check for self check ========================    
     if Board.Check_state(side):  
         print("Illegal move! You cannot leave your king in check.")
-        Board.Undo_move(from_sq, to_sq, moved_piece, captured_piece)
+        Board.Undo_move()
         continue   # ask player for another move
     ca.Piece_moved(from_sq,moved_piece) # update castling rights
 
@@ -107,6 +118,6 @@ while True:
     #     ch.Has_legal_move_no_counter(side)  # or 'b'
     # end = time.perf_counter()
     # print(f"{N / (end-start):,.0f} positions/sec")
-
-
-        
+    print(b.WHITE_OCCUPANCY,"WHITE")
+    print(b.BLACK_OCCUPANCY,"BLACK")
+    b.ALL_OCCUPANCY = b.WHITE_OCCUPANCY | b.BLACK_OCCUPANCY

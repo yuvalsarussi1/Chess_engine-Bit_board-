@@ -26,15 +26,34 @@ def Piece_moved(from_sq: int,moved_piece: int):
     
 
 
+def Undo_piece_moved(from_sq: int,moved_piece: int,flags):
+    if flags != mr.MoveRecord.CASTLE_FLAG: return False
+    if moved_piece not in (b.WK,b.WR,b.BK,b.BR): return False
+
+    if moved_piece == b.WK:
+        b.WHITE_KING_MOVE = 0
+    if moved_piece == b.BK:
+        b.BLACK_KING_MOVE = 0
+    if moved_piece == b.WR and from_sq == 0:
+        b.WHITE_LR_MOVE = 0
+    if moved_piece == b.WR and from_sq == 7:
+        b.WHITE_RR_MOVE = 0
+
+    if moved_piece == b.BR and from_sq == 56:
+        b.BLACK_LR_MOVE = 0
+    if moved_piece == b.BR and from_sq == 63:
+        b.BLACK_RR_MOVE = 0
+
+
 
 def castling_condition_King_side(square_num) -> bool:
     num = b.SQUARE_MAP[square_num]
     if num == b.WK:  
         if b.WHITE_KING_MOVE or b.WHITE_RR_MOVE: return False
         if b.ALL_OCCUPANCY & b.WHITE_KINGSIDE_EMPTY: return False
-        if th.Threats.square_attacked_by_black(4): return False  
-        if th.Threats.square_attacked_by_black(5): return False  
-        if th.Threats.square_attacked_by_black(6): return False  
+        if th.Threats.square_attacked_by_black(4): return False
+        if th.Threats.square_attacked_by_black(5): return False
+        if th.Threats.square_attacked_by_black(6): return False
         
         return True
 
@@ -73,22 +92,40 @@ def castling_condition_Queen_side(side) ->bool:
     return False
 
 
-
 def Execute_castling(side: int, kingside: bool):
-    # print("executing castling")
+
     if side == 0:  # White
         if kingside:
-            # Move rook from h1 → f1
-            b.PIECE_DICT[b.WR] &= ~(1 << 7)   # clear h1
-            b.PIECE_DICT[b.WR] |=  (1 << 5)   # set f1
+            # King: e1 → g1
+            b.PIECE_DICT[b.WK] &= ~(1 << 4)
+            b.PIECE_DICT[b.WK] |=  (1 << 6)
+            b.SQUARE_MAP[4] = b.E
+            b.SQUARE_MAP[6] = b.WK
+            b.WHITE_OCCUPANCY ^= (1 << 4)
+            b.WHITE_OCCUPANCY |= (1 << 6)
+            b.WHITE_KING_SQ = 6
+
+            # Rook: h1 → f1
+            b.PIECE_DICT[b.WR] &= ~(1 << 7)
+            b.PIECE_DICT[b.WR] |=  (1 << 5)
             b.SQUARE_MAP[7] = b.E
             b.SQUARE_MAP[5] = b.WR
             b.WHITE_OCCUPANCY ^= (1 << 7)
             b.WHITE_OCCUPANCY |= (1 << 5)
-        else:
-            # Move rook from a1 → d1
-            b.PIECE_DICT[b.WR] &= ~(1 << 0)   # clear a1
-            b.PIECE_DICT[b.WR] |=  (1 << 3)   # set d1
+
+        else:  # Queenside
+            # King: e1 → c1
+            b.PIECE_DICT[b.WK] &= ~(1 << 4)
+            b.PIECE_DICT[b.WK] |=  (1 << 2)
+            b.SQUARE_MAP[4] = b.E
+            b.SQUARE_MAP[2] = b.WK
+            b.WHITE_OCCUPANCY ^= (1 << 4)
+            b.WHITE_OCCUPANCY |= (1 << 2)
+            b.WHITE_KING_SQ = 2
+
+            # Rook: a1 → d1
+            b.PIECE_DICT[b.WR] &= ~(1 << 0)
+            b.PIECE_DICT[b.WR] |=  (1 << 3)
             b.SQUARE_MAP[0] = b.E
             b.SQUARE_MAP[3] = b.WR
             b.WHITE_OCCUPANCY ^= (1 << 0)
@@ -96,70 +133,105 @@ def Execute_castling(side: int, kingside: bool):
 
     else:  # Black
         if kingside:
-            # Move rook from h8 → f8
-            b.PIECE_DICT[b.BR] &= ~(1 << 63)  # clear h8
-            b.PIECE_DICT[b.BR] |=  (1 << 61)  # set f8
+            # King: e8 → g8
+            b.PIECE_DICT[b.BK] &= ~(1 << 60)
+            b.PIECE_DICT[b.BK] |=  (1 << 62)
+            b.SQUARE_MAP[60] = b.E
+            b.SQUARE_MAP[62] = b.BK
+            b.BLACK_OCCUPANCY ^= (1 << 60)
+            b.BLACK_OCCUPANCY |= (1 << 62)
+            b.BLACK_KING_SQ = 62
+
+            # Rook: h8 → f8
+            b.PIECE_DICT[b.BR] &= ~(1 << 63)
+            b.PIECE_DICT[b.BR] |=  (1 << 61)
             b.SQUARE_MAP[63] = b.E
             b.SQUARE_MAP[61] = b.BR
             b.BLACK_OCCUPANCY ^= (1 << 63)
             b.BLACK_OCCUPANCY |= (1 << 61)
-        else:
-            # Move rook from a8 → d8
-            b.PIECE_DICT[b.BR] &= ~(1 << 56)  # clear a8
-            b.PIECE_DICT[b.BR] |=  (1 << 59)  # set d8
+
+        else:  # Queenside
+            # King: e8 → c8
+            b.PIECE_DICT[b.BK] &= ~(1 << 60)
+            b.PIECE_DICT[b.BK] |=  (1 << 58)
+            b.SQUARE_MAP[60] = b.E
+            b.SQUARE_MAP[58] = b.BK
+            b.BLACK_OCCUPANCY ^= (1 << 60)
+            b.BLACK_OCCUPANCY |= (1 << 58)
+            b.BLACK_KING_SQ = 58
+
+            # Rook: a8 → d8
+            b.PIECE_DICT[b.BR] &= ~(1 << 56)
+            b.PIECE_DICT[b.BR] |=  (1 << 59)
             b.SQUARE_MAP[56] = b.E
             b.SQUARE_MAP[59] = b.BR
             b.BLACK_OCCUPANCY ^= (1 << 56)
             b.BLACK_OCCUPANCY |= (1 << 59)
-    b.ALL_OCCUPANCY = b.WHITE_OCCUPANCY | b.BLACK_OCCUPANCY
-
-    
-
-
-
-
 
 def Restore_castling(moved_piece: int, to_sq: int):
-    # print("restoring castling")
-    # print(moved_piece,to_sq,"RESTORE CASTLING")
 
+    # White kingside: king e1↔g1, rook h1↔f1
+    if moved_piece == b.WK and to_sq == 6:
+        # King: g1 → e1
+        b.PIECE_DICT[b.WK] ^= (1 << 6) | (1 << 4)
+        b.SQUARE_MAP[6] = b.E
+        b.SQUARE_MAP[4] = b.WK
+        b.WHITE_OCCUPANCY ^= (1 << 6) | (1 << 4)
+        b.WHITE_KING_SQ = 4
 
-
-    if moved_piece == b.WK and to_sq == 6:   
-        # rook: f1 -> h1
-        b.SQUARE_MAP[7] = b.WR
+        # Rook: f1 → h1
+        b.PIECE_DICT[b.WR] ^= (1 << 5) | (1 << 7)
         b.SQUARE_MAP[5] = b.E
-        b.PIECE_DICT[b.WR] ^= (1 << 5) | (1 << 7)  
+        b.SQUARE_MAP[7] = b.WR
         b.WHITE_OCCUPANCY ^= (1 << 5) | (1 << 7)
-        b.ALL_OCCUPANCY  ^= (1 << 5) | (1 << 7)
 
-    elif moved_piece == b.WK and to_sq == 2: 
-        # rook: d1 -> a1
-        b.SQUARE_MAP[0] = b.WR
+    # White queenside: king e1↔c1, rook a1↔d1
+    elif moved_piece == b.WK and to_sq == 2:
+        # King: c1 → e1
+        b.PIECE_DICT[b.WK] ^= (1 << 2) | (1 << 4)
+        b.SQUARE_MAP[2] = b.E
+        b.SQUARE_MAP[4] = b.WK
+        b.WHITE_OCCUPANCY ^= (1 << 2) | (1 << 4)
+        b.WHITE_KING_SQ = 4
+
+        # Rook: d1 → a1
+        b.PIECE_DICT[b.WR] ^= (1 << 3) | (1 << 0)
         b.SQUARE_MAP[3] = b.E
-        b.PIECE_DICT[b.WR] ^= (1 << 0) | (1 << 3)
-        b.WHITE_OCCUPANCY ^= (1 << 0) | (1 << 3)
-        b.ALL_OCCUPANCY  ^= (1 << 0) | (1 << 3)
+        b.SQUARE_MAP[0] = b.WR
+        b.WHITE_OCCUPANCY ^= (1 << 3) | (1 << 0)
 
-    elif moved_piece == b.BK and to_sq == 62: 
-        # rook: f8 -> h8
-        b.SQUARE_MAP[63] = b.BR
-        b.SQUARE_MAP[61] = b.E
+    # Black kingside: king e8↔g8, rook h8↔f8
+    elif moved_piece == b.BK and to_sq == 62:
+        # King: g8 → e8
+        b.PIECE_DICT[b.BK] ^= (1 << 62) | (1 << 60)
+        b.SQUARE_MAP[62] = b.E
+        b.SQUARE_MAP[60] = b.BK
+        b.BLACK_OCCUPANCY ^= (1 << 62) | (1 << 60)
+        b.BLACK_KING_SQ = 60
+
+        # Rook: f8 → h8
         b.PIECE_DICT[b.BR] ^= (1 << 61) | (1 << 63)
+        b.SQUARE_MAP[61] = b.E
+        b.SQUARE_MAP[63] = b.BR
         b.BLACK_OCCUPANCY ^= (1 << 61) | (1 << 63)
-        b.ALL_OCCUPANCY  ^= (1 << 61) | (1 << 63)
 
-    elif moved_piece == b.BK and to_sq == 58: 
-        # rook: d8 -> a8
-        b.SQUARE_MAP[56] = b.BR
+    # Black queenside: king e8↔c8, rook a8↔d8
+    elif moved_piece == b.BK and to_sq == 58:
+        # King: c8 → e8
+        b.PIECE_DICT[b.BK] ^= (1 << 58) | (1 << 60)
+        b.SQUARE_MAP[58] = b.E
+        b.SQUARE_MAP[60] = b.BK
+        b.BLACK_OCCUPANCY ^= (1 << 58) | (1 << 60)
+        b.BLACK_KING_SQ = 60
+
+        # Rook: d8 → a8
+        b.PIECE_DICT[b.BR] ^= (1 << 59) | (1 << 56)
         b.SQUARE_MAP[59] = b.E
-        b.PIECE_DICT[b.BR] ^= (1 << 56) | (1 << 59)
-        b.BLACK_OCCUPANCY ^= (1 << 56) | (1 << 59)
-        b.ALL_OCCUPANCY  ^= (1 << 56) | (1 << 59)
+        b.SQUARE_MAP[56] = b.BR
+        b.BLACK_OCCUPANCY ^= (1 << 59) | (1 << 56)
 
-
-
-
+    # Recompute all occupancy
+    # b.ALL_OCCUPANCY = b.WHITE_OCCUPANCY | b.BLACK_OCCUPANCY
 
 def castling_trigger(from_sq: int,to_sq: int,moved_piece: int):
     if moved_piece == b.WK and from_sq == 4 and to_sq == 6:
@@ -171,12 +243,9 @@ def castling_trigger(from_sq: int,to_sq: int,moved_piece: int):
     elif moved_piece == b.BK and from_sq == 60 and to_sq == 58:
         Execute_castling(1, kingside=False)
 
-
-
 def Castling_execute(moved_piece, flags,to_sq):
-    if flags == mr.MoveRecord.CASTLE_FLAG:
-            if moved_piece == b.WK:
-                ca.Execute_castling(0, kingside=(to_sq == 6))
-            else:
-                ca.Execute_castling(1, kingside=(to_sq == 62))
+    if moved_piece == b.WK:
+        ca.Execute_castling(0, kingside=(to_sq == 6))
+    else:
+        ca.Execute_castling(1, kingside=(to_sq == 62))
 
