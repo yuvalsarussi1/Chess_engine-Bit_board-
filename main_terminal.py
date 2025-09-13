@@ -8,7 +8,7 @@ import magic as m
 import legal_moves as ch
 import time
 import castling as ca
-
+import move_generate as mog
     
 Board.Fresh_reset()
 Board.Update_occupancy()
@@ -86,9 +86,9 @@ while True:
 #========================= Check for checkmate ===========0=============
     if Board.Check_state(side):
         print(f"{'White' if side == 'w' else 'Black'} is in check")
-        ch.All_Move_generate()
+        mog.All_Move_generate()
 
-        All_legal_moves = ch.Has_legal_move_no_counter_debug(side)
+        All_legal_moves = ch.Has_legal_move(side)
         if All_legal_moves == False:
             print("checkmate!")
             break
@@ -97,8 +97,8 @@ while True:
             print("Legal moves:", All_legal_moves)
             continue
     else:
-        ch.All_Move_generate()
-        All_legal_moves = ch.Has_legal_move_no_counter_debug(side)
+        mog.All_Move_generate()
+        All_legal_moves = ch.Has_legal_move(side)
         if All_legal_moves == False:
             print("stalemate!")
             break
@@ -111,13 +111,13 @@ while True:
 
 
 
-    # start = time.perf_counter()
-    # N = 1000
-    # for _ in range(N):
-    #     ch.All_Move_generate()
-    #     ch.Has_legal_move_no_counter(side)  # or 'b'
-    # end = time.perf_counter()
-    # print(f"{N / (end-start):,.0f} positions/sec")
+    start = time.perf_counter()
+    N = 1000
+    for _ in range(N):
+        mog.All_Move_generate()
+        ch.All_legal_move(side)  # or 'b'
+    end = time.perf_counter()
+    print(f"{N / (end-start):,.0f} positions/sec")
     print(b.WHITE_OCCUPANCY,"WHITE")
     print(b.BLACK_OCCUPANCY,"BLACK")
     b.ALL_OCCUPANCY = b.WHITE_OCCUPANCY | b.BLACK_OCCUPANCY

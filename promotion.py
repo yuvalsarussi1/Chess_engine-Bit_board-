@@ -37,7 +37,6 @@ def promotion_undo(from_sq, to_sq, from_mask, to_mask, moved_piece, flags, recor
         # --- remove promoted piece ---
         
         promoted_piece = record.promotion_piece
-        print(promoted_piece,"promoted_piece")
         
         b.PIECE_DICT[promoted_piece] &= ~to_mask
         b.SQUARE_MAP[to_sq] = b.E

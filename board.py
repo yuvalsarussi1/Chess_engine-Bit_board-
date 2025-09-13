@@ -150,7 +150,7 @@ class Board:
 
 
 #=====================MOVE EXECUTE DEF=====================
-    def Move_attacker(from_sq: int, to_sq: int, flags = mr.MoveRecord.NONE_FLAG):
+    def Move_attacker(from_sq: int, to_sq: int,flags = mr.MoveRecord.NONE_FLAG):
         from_mask = 1 << from_sq
         to_mask   = 1 << to_sq
         old_ep = b.EN_PASSANT_SQ
@@ -166,7 +166,7 @@ class Board:
             flags = mr.MoveRecord.EN_PASSANT_FLAG
         elif moved_piece == b.BP and to_sq == b.EN_PASSANT_SQ and captured_piece == b.E:
             flags = mr.MoveRecord.EN_PASSANT_FLAG
-        
+    
         elif moved_piece == b.WP and to_sq >= 56:
             flags = mr.MoveRecord.PROMOTION_FLAG
         elif moved_piece == b.BP and to_sq <= 7:
@@ -184,7 +184,6 @@ class Board:
         if flags == mr.MoveRecord.EN_PASSANT_FLAG:
             en.En_passant_execute(moved_piece, flags,from_sq,to_sq)
         if flags == mr.MoveRecord.PROMOTION_FLAG:
-            print(b.PROMOTION_PIECE,"before execute")
             pro.promotion_execute(from_sq,to_sq,from_mask,to_mask,moved_piece,b.PROMOTION_PIECE,flags,captured_piece)
         
         
@@ -209,7 +208,6 @@ class Board:
         to_mask   = 1 << to_sq
 
         
-        print(flags,"flags check")
         if flags == mr.MoveRecord.CASTLE_FLAG:
             ca.Restore_castling(moved_piece, to_sq)
             return 
