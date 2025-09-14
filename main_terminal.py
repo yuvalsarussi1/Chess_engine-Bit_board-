@@ -9,21 +9,47 @@ import legal_moves as ch
 import time
 import castling as ca
 import move_generate as mog
-    
-Board.Fresh_reset()
+import fen as fe
+
+# fen_obj = fe.Fen.split_fen("rnb1kb1r/pppp1Qpp/5n2/4p3/2B1P3/8/PPPP1PPP/RNB1K1NR b KQkq - 0 4")
+# board = fe.Fen.board_mask(fen_obj)
+# fe.Fen.Piece_dict_fen(board)
+# fe.Fen.Square_map_fen(board)
+
+
+check = int(input("FEN? 1/0"))
+if check == 1:
+    fen_obj = fe.Fen.split_fen("r3k2r/pppqppbp/2np1np1/8/2BPP3/2N2N2/PPP2PPP/R1BQ1RK1 w k - 4 8")
+    board = fe.Fen.board_mask(fen_obj)
+    side = fe.Fen.side_to_move(fen_obj)
+    fe.Fen.castling_fen(fen_obj)
+    fe.Fen.en_passant_fen(fen_obj)
+    fe.Fen.Piece_dict_fen(board)
+    fe.Fen.Square_map_fen(board)
+else:
+    Board.Fresh_reset()
+    #========================Pick_side==================
+    while True:
+        side = int(input("Choose side:"))
+        side = Side_pick(side)
+        if side is False:
+            print("use format w/o")
+            continue
+        print(side,"Turn")            
+        break
 Board.Update_occupancy()
-#========================Pick_side==================
-while True:
-    side = int(input("Choose side:"))
-    side = Side_pick(side)
-    if side is False:
-        print("use format w/o")
-        continue
-    print(side,"Turn")            
-    break
+
+
+# print(b.PIECE_DICT)
+# print(b.SQUARE_MAP)
+# print(b.WHITE_OCCUPANCY)
+# print(b.BLACK_OCCUPANCY)
+# print(side)
+
 #========================Game_loop==================
 while True:
-    Board.Check_state(side)
+    if Board.Check_state(side):
+        print("YOU ARE IN CHECK")
     Board.print_board_list(b.SQUARE_MAP,True)
     Update_PIECES_TURN(side)
 #=========================ENTER PIECE SQUARE COORD=================
