@@ -142,4 +142,23 @@ def  Promotion_select(side):
         else:
              continue
 
-          
+
+def Move_counter(moved_piece,captured_piece,side):
+    if moved_piece in(b.WP,b.BP) or captured_piece != b.E:
+        b.HALF_MOVE = 0
+    else:
+        b.HALF_MOVE += 1
+    
+    side ^= 1
+    if side == 1:
+       b.FULL_MOVE += 1
+
+    print("HF:",b.HALF_MOVE)
+    print("FF:",b.FULL_MOVE)
+
+    if b.HALF_MOVE >= 100:
+        print("Draw can be claimed (50-move rule)")
+    if b.HALF_MOVE >= 150:
+        print("Automatic draw (75-move rule)")
+
+    return b.HALF_MOVE

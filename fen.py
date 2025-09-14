@@ -74,26 +74,22 @@ class Fen:
     
     def castling_fen(fen_obj): # need optimaize wite bool conditions
         rights = fen_obj.castling_rights
-        b.WHITE_KING_MOVE = 1
-        b.WHITE_RR_MOVE = 1
-        b.WHITE_LR_MOVE = 1
-        b.BLACK_KING_MOVE = 1
-        b.BLACK_RR_MOVE = 1
-        b.BLACK_LR_MOVE = 1
+        b.CASTLING_WK = "K" in rights
+        b.CASTLING_WQ = "Q" in rights
+        b.CASTLING_BK = "k" in rights
+        b.CASTLING_BQ = "q" in rights
+        
         if rights != "-":
             for char in rights:
                 if char == "K":
-                    b.WHITE_KING_MOVE = 0
-                    b.WHITE_RR_MOVE = 0
+                    b.CASTLING_WK = True
                 if char == "Q":
-                    b.WHITE_KING_MOVE = 0
-                    b.WHITE_LR_MOVE = 0
+                    b.CASTLING_WQ = True
                 if char == "k":
-                    b.BLACK_KING_MOVE = 0
-                    b.BLACK_RR_MOVE = 0
+                    b.CASTLING_BK = True
                 if char == "q":
-                    b.BLACK_KING_MOVE = 0
-                    b.BLACK_LR_MOVE = 0
+                    b.CASTLING_BQ = True
+
 
     def en_passant_fen(fen_obj):
         ep_str = fen_obj.en_target_sq
@@ -103,6 +99,24 @@ class Fen:
         rank = int(ep_str[1]) - 1
         return rank * 8 + file
         
+    def Moves(fen_obj):
+        b.HALF_MOVE = int(fen_obj.half_move)
+        b.FULL_MOVE = int(fen_obj.full_move)
+
+
+    @staticmethod
+    def FEN_Option(fen_code):
+        fen_obj = Fen.split_fen(fen_code)
+        board = Fen.board_mask(fen_obj)
+        side = Fen.side_to_move(fen_obj)
+        
+        Fen.castling_fen(fen_obj)
+        Fen.en_passant_fen(fen_obj)
+        Fen.Moves(fen_obj)
+        Fen.Piece_dict_fen(board)
+        Fen.Square_map_fen(board)
+        
+        return side
 
 
 
@@ -110,37 +124,3 @@ class Fen:
 
 
 
-
-
-
-
-
-# print(board)
-# print(b.SQUARE_MAP)
-# print(b.PIECE_DICT)
-
-
-
-# check = int(input("FEN? 1/0"))
-# if check == 1:
-#     fen_obj = fe.Fen.split_fen("rnb1kb1r/pppp1Qpp/5n2/4p3/2B1P3/8/PPPP1PPP/RNB1K1NR b KQkq - 0 4")
-#     board = fe.Fen.board_mask(fen_obj)
-#     side = fe.Fen.side_to_move(fen_obj)
-#     fe.Fen.castling_fen(fen_obj)
-#     fe.Fen.en_passant_fen(fen_obj)
-#     fe.Fen.Piece_dict_fen(board)
-#     fe.Fen.Square_map_fen(board)
-# else:
-#     print(b.PIECE_DICT)
-#     print(b.SQUARE_MAP)
-#     Board.Fresh_reset()
-#     #========================Pick_side==================
-#     while True:
-#         side = int(input("Choose side:"))
-#         side = Side_pick(side)
-#         if side is False:
-#             print("use format w/o")
-#             continue
-#         print(side,"Turn")            
-#         break
-# Board.Update_occupancy()

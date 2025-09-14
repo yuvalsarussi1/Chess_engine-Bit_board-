@@ -144,5 +144,4 @@ def All_legal_move(side):
             if not Board.Check_state(side):
                 LEGAL_MOVES.append((from_sq, to_sq, moved_piece))
             Board.Undo_move()
-
     return LEGAL_MOVES

@@ -10,22 +10,23 @@ import time
 import castling as ca
 import move_generate as mog
 import fen as fe
-
-# fen_obj = fe.Fen.split_fen("rnb1kb1r/pppp1Qpp/5n2/4p3/2B1P3/8/PPPP1PPP/RNB1K1NR b KQkq - 0 4")
-# board = fe.Fen.board_mask(fen_obj)
-# fe.Fen.Piece_dict_fen(board)
-# fe.Fen.Square_map_fen(board)
+import perft as pe
 
 
-check = int(input("FEN? 1/0"))
-if check == 1:
-    fen_obj = fe.Fen.split_fen("r3k2r/pppqppbp/2np1np1/8/2BPP3/2N2N2/PPP2PPP/R1BQ1RK1 w k - 4 8")
-    board = fe.Fen.board_mask(fen_obj)
-    side = fe.Fen.side_to_move(fen_obj)
-    fe.Fen.castling_fen(fen_obj)
-    fe.Fen.en_passant_fen(fen_obj)
-    fe.Fen.Piece_dict_fen(board)
-    fe.Fen.Square_map_fen(board)
+
+
+#added perft
+# over turn counting
+# check only 2 perft and check what cause the over movement
+
+
+
+
+
+
+Fen_choice = int(input("FEN? 1/0:"))
+if Fen_choice == 1:
+    side = fe.Fen.FEN_Option("r3k2r/pppqppbp/2np1np1/8/2BPP3/2N2N2/PPP2PPP/R1BQ1RK1 w k - 4 8")
 else:
     Board.Fresh_reset()
     #========================Pick_side==================
@@ -35,16 +36,9 @@ else:
         if side is False:
             print("use format w/o")
             continue
-        print(side,"Turn")            
+        print("White Turn") if side == 0 else print("Black Turn")                
         break
 Board.Update_occupancy()
-
-
-# print(b.PIECE_DICT)
-# print(b.SQUARE_MAP)
-# print(b.WHITE_OCCUPANCY)
-# print(b.BLACK_OCCUPANCY)
-# print(side)
 
 #========================Game_loop==================
 while True:
@@ -52,6 +46,7 @@ while True:
         print("YOU ARE IN CHECK")
     Board.print_board_list(b.SQUARE_MAP,True)
     Update_PIECES_TURN(side)
+    pe.perft_test(max_depth=4)
 #=========================ENTER PIECE SQUARE COORD=================
     from_sq = input ("Choose piece:")
     from_sq = coord_converter_num(from_sq) # =square_index not bit 
@@ -85,12 +80,9 @@ while True:
     captured_piece = b.SQUARE_MAP[to_sq]# int(piece_name)
 ##=========================PROMOTION ASSIGN========================
     
-    print(moved_piece,"moved_piece")
 
     if moved_piece in (1,7) and not (7 < to_sq < 56):
         Promotion_select(side)
-        print(b.PROMOTION_PIECE,"promotion_piece")
-    print("check_dest")
 
 
 
@@ -129,21 +121,30 @@ while True:
             print("stalemate!")
             break
 #================================================
-    print(side,"Turn")            
+    print("White Turn") if side == 0 else print("Black Turn")      
 #=========================END GAME CONDITION=======================
     if b.WHITE_OCCUPANCY == 0 or b.BLACK_OCCUPANCY == 0:
         print("Game over")
         break
 
+    
+
+    
 
 
-    start = time.perf_counter()
-    N = 1000
-    for _ in range(N):
-        mog.All_Move_generate()
-        ch.All_legal_move(side)  # or 'b'
-    end = time.perf_counter()
-    print(f"{N / (end-start):,.0f} positions/sec")
-    print(b.WHITE_OCCUPANCY,"WHITE")
-    print(b.BLACK_OCCUPANCY,"BLACK")
+
+    # start = time.perf_counter()
+    # N = 1000
+    # for _ in range(N):
+    #     mog.All_Move_generate()
+    #     ch.All_legal_move(side)
+    # end = time.perf_counter()
+    # print(f"{N / (end-start):,.0f} positions/sec")
+    # print(b.WHITE_OCCUPANCY,"WHITE")
+    # print(b.BLACK_OCCUPANCY,"BLACK")
     b.ALL_OCCUPANCY = b.WHITE_OCCUPANCY | b.BLACK_OCCUPANCY
+    
+
+    half_moves = Move_counter(moved_piece,captured_piece,side)
+    if half_moves == 75:
+        break

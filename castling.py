@@ -9,20 +9,22 @@ def Piece_moved(from_sq: int,moved_piece: int):
     if moved_piece not in (b.WK,b.WR,b.BK,b.BR): return False
     
     if moved_piece == b.WK:
-        b.WHITE_KING_MOVE = 1
-
+        b.CASTLING_WK = False
+        b.CASTLING_WQ = False
     if moved_piece == b.BK:
-        b.BLACK_KING_MOVE = 1
-
+        b.CASTLING_BK = False
+        b.CASTLING_BQ = False
+    
+    
     if moved_piece == b.WR and from_sq == 0:
-        b.WHITE_LR_MOVE = 1
+        b.CASTLING_WQ = False
     if moved_piece == b.WR and from_sq == 7:
-        b.WHITE_RR_MOVE = 1
+        b.CASTLING_WK = False
     
     if moved_piece == b.BR and from_sq == 56:
-        b.BLACK_LR_MOVE = 1
+        b.CASTLING_BQ = False
     if moved_piece == b.BR and from_sq == 63:
-        b.BLACK_RR_MOVE = 1
+        b.CASTLING_BK = False
     
 
 
@@ -49,7 +51,7 @@ def Undo_piece_moved(from_sq: int,moved_piece: int,flags):
 def castling_condition_King_side(square_num) -> bool:
     num = b.SQUARE_MAP[square_num]
     if num == b.WK:  
-        if b.WHITE_KING_MOVE or b.WHITE_RR_MOVE: return False
+        if not b.CASTLING_WK: return False
         if b.ALL_OCCUPANCY & b.WHITE_KINGSIDE_EMPTY: return False
         if th.Threats.square_attacked_by_black(4): return False
         if th.Threats.square_attacked_by_black(5): return False
@@ -58,7 +60,7 @@ def castling_condition_King_side(square_num) -> bool:
         return True
 
     elif num == b.BK:  # Black
-        if b.BLACK_KING_MOVE or b.BLACK_RR_MOVE: return False
+        if not b.CASTLING_BK: return False
         if b.ALL_OCCUPANCY & b.BLACK_KINGSIDE_EMPTY: return False
         if th.Threats.square_attacked_by_white(60): return False  
         if th.Threats.square_attacked_by_white(61): return False  
@@ -72,7 +74,7 @@ def castling_condition_King_side(square_num) -> bool:
 
 def castling_condition_Queen_side(side) ->bool:
     if side == 0:  
-        if b.WHITE_KING_MOVE or b.WHITE_LR_MOVE: return False
+        if not b.CASTLING_WQ: return False
         if b.ALL_OCCUPANCY & b.WHITE_QUEENSIDE_EMPTY: return False
         if th.Threats.square_attacked_by_black(4): return False  
         if th.Threats.square_attacked_by_black(3): return False  
@@ -81,7 +83,7 @@ def castling_condition_Queen_side(side) ->bool:
         return True
 
     elif side == 1:  # Black
-        if b.BLACK_KING_MOVE or b.BLACK_LR_MOVE: return False
+        if not b.CASTLING_BQ: return False
         if b.ALL_OCCUPANCY & b.BLACK_QUEENSIDE_EMPTY: return False
         if th.Threats.square_attacked_by_white(60): return False  
         if th.Threats.square_attacked_by_white(59): return False  

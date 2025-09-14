@@ -47,19 +47,22 @@ def Knight_attacks(square_num: int) -> int:
 
 def King_attack_no_castling(square_num: int) -> int:
     return b.KING_MASK[square_num]
+
 def King_attack_white(square_num: int) -> int:
+    mask = b.KING_MASK[square_num]
     if ca.castling_condition_King_side(square_num):
-        print(b.KING_MASK[square_num] | b.KING_SIDE_CASTLING_MASK_WHITE)
-        return (b.KING_MASK[square_num] | b.KING_SIDE_CASTLING_MASK_WHITE)
+        mask |= (b.KING_SIDE_CASTLING_MASK_WHITE)
     if ca.castling_condition_Queen_side(square_num):
-        return (b.KING_MASK[square_num] | b.QUEEN_SIDE_CASTLING_MASK_WHITE)
-    return b.KING_MASK[square_num]
+        mask |= (b.QUEEN_SIDE_CASTLING_MASK_WHITE)
+    return mask
+
 def King_attack_black(square_num: int) -> int:
+    mask = b.KING_MASK[square_num]
     if ca.castling_condition_King_side(square_num):
-        return (b.KING_MASK[square_num] | b.KING_SIDE_CASTLING_MASK_BLACK)
+        mask |= (b.KING_SIDE_CASTLING_MASK_BLACK)
     if ca.castling_condition_Queen_side(square_num):
-        return (b.KING_MASK[square_num] | b.QUEEN_SIDE_CASTLING_MASK_BLACK)
-    return b.KING_MASK[square_num]
+        mask |= (b.QUEEN_SIDE_CASTLING_MASK_BLACK)
+    return mask
 
 
 

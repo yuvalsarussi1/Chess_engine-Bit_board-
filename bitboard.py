@@ -35,6 +35,14 @@ CASTLING_WHITE_QUEEN_SIDE = 0xe
 CASTLING_BLACK_KING_SIDE = 0x6000000000000000
 CASTLING_BLACK_QUEEN_SIDE = 0xe00000000000000
 
+CASTLING_WK = True
+CASTLING_WQ = True
+CASTLING_BK = True
+CASTLING_BQ = True
+
+
+
+
 WHITE_KING_MOVE = 0
 BLACK_KING_MOVE = 0
 WHITE_RR_MOVE = 0
@@ -106,6 +114,10 @@ PROMOTION_DICT ={
     "n":BN,
     "b":BB
 }
+
+HALF_MOVE = 0
+FULL_MOVE = 0
+
 
 #==========================================General Pieces Mask=================================================
 
