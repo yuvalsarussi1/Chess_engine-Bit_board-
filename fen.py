@@ -41,28 +41,57 @@ class Fen:
     
 
     def board_mask(fen_obj):
-        ranks = fen_obj.mask.split("/")
-        ranks = list(reversed(ranks))
+        ranks = fen_obj.mask.split("/")   # don’t reverse
         board = []
-        for rank in ranks:
+        for rank in reversed(ranks):      # go from rank 8 → rank 1
             for char in rank:
                 if char.isdigit():
-                    board.extend([Fen.E] * int(char))  # empty squares
+                    board.extend([Fen.E] * int(char))
                 else:
-                    board.append(Fen.fen_map[char])               # piece
+                    board.append(Fen.fen_map[char])
         return board
+
     
+
+
+
+
+
+
     def Piece_dict_fen(board):
         for piece in range(len(b.PIECE_DICT)):
             b.PIECE_DICT[piece] = 0
-        
-        
+
+        b.WHITE_OCCUPANCY = 0
+        b.BLACK_OCCUPANCY = 0
+        b.ALL_OCCUPANCY = 0
+
         for sq, val in enumerate(board):
             if val != 0:
                 b.PIECE_DICT[val] |= 1 << sq
-            
+                b.ALL_OCCUPANCY |= 1 << sq
+                if val <= b.WK:   # white pieces
+                    b.WHITE_OCCUPANCY |= 1 << sq
+                    if val == b.WK:
+                        b.WHITE_KING_SQ = sq
+                else:             # black pieces
+                    b.BLACK_OCCUPANCY |= 1 << sq
+                    if val == b.BK:
+                        b.BLACK_KING_SQ = sq
+
+
+
+
+
+
+
     def Square_map_fen(board):
-        b.SQUARE_MAP = board
+        for i in range(64):
+            b.SQUARE_MAP[i] = board[i]
+
+
+
+
 
     def side_to_move(fen_obj):
         side = fen_obj.turn
@@ -72,23 +101,14 @@ class Fen:
             return 0
         
     
-    def castling_fen(fen_obj): # need optimaize wite bool conditions
+    def castling_fen(fen_obj):
         rights = fen_obj.castling_rights
+        print("DEBUG: FEN rights =", rights)
         b.CASTLING_WK = "K" in rights
         b.CASTLING_WQ = "Q" in rights
         b.CASTLING_BK = "k" in rights
         b.CASTLING_BQ = "q" in rights
-        
-        if rights != "-":
-            for char in rights:
-                if char == "K":
-                    b.CASTLING_WK = True
-                if char == "Q":
-                    b.CASTLING_WQ = True
-                if char == "k":
-                    b.CASTLING_BK = True
-                if char == "q":
-                    b.CASTLING_BQ = True
+        print("DEBUG: WK,WQ,BK,BQ =", b.CASTLING_WK, b.CASTLING_WQ, b.CASTLING_BK, b.CASTLING_BQ)
 
 
     def en_passant_fen(fen_obj):
@@ -97,8 +117,12 @@ class Fen:
             return -1  # or None
         file = ord(ep_str[0]) - ord('a')
         rank = int(ep_str[1]) - 1
-        return rank * 8 + file
+        b.EN_PASSANT_SQ = rank * 8 + file
+          
         
+
+
+
     def Moves(fen_obj):
         b.HALF_MOVE = int(fen_obj.half_move)
         b.FULL_MOVE = int(fen_obj.full_move)

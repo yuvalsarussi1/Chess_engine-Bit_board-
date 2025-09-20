@@ -14,19 +14,14 @@ import perft as pe
 
 
 
+#see what changed in undo_move 
+#perft 5 broken (checkCaptures 	E.p. 	Castles 	Promotions 	Checks 	Discovery Checks 	Double Checks 	Checkmates )
 
-#added perft
-# over turn counting
-# check only 2 perft and check what cause the over movement
-
-
-
-
-
+#after perft good work on preformance
 
 Fen_choice = int(input("FEN? 1/0:"))
 if Fen_choice == 1:
-    side = fe.Fen.FEN_Option("r3k2r/pppqppbp/2np1np1/8/2BPP3/2N2N2/PPP2PPP/R1BQ1RK1 w k - 4 8")
+    side = fe.Fen.FEN_Option("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1")
 else:
     Board.Fresh_reset()
     #========================Pick_side==================
@@ -39,14 +34,13 @@ else:
         print("White Turn") if side == 0 else print("Black Turn")                
         break
 Board.Update_occupancy()
-
+pe.perft_test(max_depth=4)
 #========================Game_loop==================
 while True:
     if Board.Check_state(side):
         print("YOU ARE IN CHECK")
     Board.print_board_list(b.SQUARE_MAP,True)
     Update_PIECES_TURN(side)
-    pe.perft_test(max_depth=4)
 #=========================ENTER PIECE SQUARE COORD=================
     from_sq = input ("Choose piece:")
     from_sq = coord_converter_num(from_sq) # =square_index not bit 
@@ -95,7 +89,7 @@ while True:
         print("Illegal move! You cannot leave your king in check.")
         Board.Undo_move()
         continue   # ask player for another move
-    ca.Piece_moved(from_sq,moved_piece) # update castling rights
+    ca.Piece_moved(from_sq,to_sq,moved_piece,captured_piece) # update castling rights
 
 #========================= Change side ========================
     side = Side_change(side)

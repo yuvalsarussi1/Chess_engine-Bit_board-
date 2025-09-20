@@ -134,14 +134,15 @@ def All_legal_move(side):
             m ^= lsb
 
             moved_piece = b.SQUARE_MAP[from_sq]
-
             if (moved_piece == b.WP and to_sq > 55 and side == 0) or \
                (moved_piece == b.BP and to_sq < 8 and side == 1):
                 promotion_append(from_sq,to_sq,moved_piece,side,LEGAL_MOVES)
+                
                 continue  
-
+            
             Board.Move_attacker(from_sq, to_sq)
             if not Board.Check_state(side):
                 LEGAL_MOVES.append((from_sq, to_sq, moved_piece))
             Board.Undo_move()
+    
     return LEGAL_MOVES

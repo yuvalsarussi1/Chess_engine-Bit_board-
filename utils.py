@@ -162,3 +162,5 @@ def Move_counter(moved_piece,captured_piece,side):
         print("Automatic draw (75-move rule)")
 
     return b.HALF_MOVE
+
+

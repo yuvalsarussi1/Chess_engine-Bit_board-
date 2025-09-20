@@ -15,6 +15,6 @@ def All_Move_generate():
             piece_mask ^= lsb
             moves = mo.Piece_move(sq)
             MOVES_DICT[sq] = moves
-
+            
 
 

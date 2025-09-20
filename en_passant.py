@@ -1,6 +1,6 @@
 import bitboard as b
 import move_record as mr
-
+import board as bo
 
 def en_passant_condition_1(from_sq: int, to_sq: int, moved_piece: int) -> int:
     if moved_piece == b.WP:
@@ -24,96 +24,54 @@ def en_passant_execute(from_sq: int, to_sq: int, side: bool):
     from_mask = (1 << from_sq)
     to_mask   = (1 << to_sq)
 
+    moved_piece = b.WP if side == 0 else b.BP
+    captured_piece = b.E  # en passant looks empty, Normal_attack handles just the mover
+
+    # First do the normal move
+    bo.Board.Normal_attack(from_sq, to_sq, moved_piece, from_mask, to_mask, captured_piece)
+
+    # Now handle the special captured pawn
     if side == 0:  # White capturing black pawn
-        captured_sq   = to_sq - 8   # black pawn is behind the target square
+        captured_sq   = to_sq - 8
         captured_mask = (1 << captured_sq)
 
-        # Update bitboards
-        b.PIECE_DICT[b.WP] &= ~from_mask
-        b.PIECE_DICT[b.WP] |= to_mask
         b.PIECE_DICT[b.BP] &= ~captured_mask
-
-        # Update square map
-        b.SQUARE_MAP[from_sq] = b.E
-        b.SQUARE_MAP[to_sq]   = b.WP
         b.SQUARE_MAP[captured_sq] = b.E
-
-        # Update occupancies
-        b.WHITE_OCCUPANCY &= ~from_mask
-        b.WHITE_OCCUPANCY |= to_mask
         b.BLACK_OCCUPANCY &= ~captured_mask
-        b.ALL_OCCUPANCY   &= ~from_mask
         b.ALL_OCCUPANCY   &= ~captured_mask
-        b.ALL_OCCUPANCY   |= to_mask
 
     else:  # Black capturing white pawn
-        captured_sq   = to_sq + 8   # white pawn is behind the target square
+        captured_sq   = to_sq + 8
         captured_mask = (1 << captured_sq)
 
-        # Update bitboards
-        b.PIECE_DICT[b.BP] &= ~from_mask
-        b.PIECE_DICT[b.BP] |= to_mask
         b.PIECE_DICT[b.WP] &= ~captured_mask
-
-        # Update square map
-        b.SQUARE_MAP[from_sq] = b.E
-        b.SQUARE_MAP[to_sq]   = b.BP
         b.SQUARE_MAP[captured_sq] = b.E
-
-        # Update occupancies
-        b.BLACK_OCCUPANCY &= ~from_mask
-        b.BLACK_OCCUPANCY |= to_mask
         b.WHITE_OCCUPANCY &= ~captured_mask
-        b.ALL_OCCUPANCY   &= ~from_mask
         b.ALL_OCCUPANCY   &= ~captured_mask
-        b.ALL_OCCUPANCY   |= to_mask
 
 
-def en_passant_undo(from_sq: int, to_sq: int, side: int):
+
+# undo
+def en_passant_undo(from_sq, to_sq, side):
     from_mask = 1 << from_sq
     to_mask   = 1 << to_sq
+    moved_piece = b.WP if side == 0 else b.BP
+    captured_piece = b.BP if side == 0 else b.WP
 
-    if side == 0:  # White had captured black pawn
-        captured_sq   = to_sq - 8
-        captured_mask = 1 << captured_sq
+    # normal undo first
+    bo.Board.Normal_undo(moved_piece, from_sq, to_sq, to_mask, from_mask, b.E)
 
-        # Restore white pawn
-        b.PIECE_DICT[b.WP] &= ~to_mask
-        b.PIECE_DICT[b.WP] |= from_mask
-
-        # Restore black pawn
-        b.PIECE_DICT[b.BP] |= captured_mask
-
-        # Update square map
-        b.SQUARE_MAP[from_sq]     = b.WP
-        b.SQUARE_MAP[to_sq]       = b.E
-        b.SQUARE_MAP[captured_sq] = b.BP
-
-        # Update occupancies
-        b.WHITE_OCCUPANCY &= ~to_mask
-        b.WHITE_OCCUPANCY |= from_mask
+    # restore the hidden captured pawn
+    captured_sq   = to_sq - 8 if side == 0 else to_sq + 8
+    captured_mask = 1 << captured_sq
+    b.PIECE_DICT[captured_piece] |= captured_mask
+    b.SQUARE_MAP[captured_sq] = captured_piece
+    if side == 0:
         b.BLACK_OCCUPANCY |= captured_mask
-
-    else:  # Black had captured white pawn
-        captured_sq   = to_sq + 8
-        captured_mask = 1 << captured_sq
-
-        # Restore black pawn
-        b.PIECE_DICT[b.BP] &= ~to_mask
-        b.PIECE_DICT[b.BP] |= from_mask
-
-        # Restore white pawn
-        b.PIECE_DICT[b.WP] |= captured_mask
-
-        # Update square map
-        b.SQUARE_MAP[from_sq]     = b.BP
-        b.SQUARE_MAP[to_sq]       = b.E
-        b.SQUARE_MAP[captured_sq] = b.WP
-
-        # Update occupancies
-        b.BLACK_OCCUPANCY &= ~to_mask
-        b.BLACK_OCCUPANCY |= from_mask
+    else:
         b.WHITE_OCCUPANCY |= captured_mask
+    b.ALL_OCCUPANCY |= captured_mask
+
 
 
 def En_passant_execute(moved_piece,flags,from_sq,to_sq):

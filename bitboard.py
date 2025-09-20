@@ -17,7 +17,7 @@ PIECE_BITBOARDS = [0] * 13
 
 
 MOVE_HISTORY = []
-
+MOVE_RECORD = []
 
 PIECE_DICT = [0]*13
 PIECES_TURN = []
@@ -118,6 +118,12 @@ PROMOTION_DICT ={
 HALF_MOVE = 0
 FULL_MOVE = 0
 
+CHECKS = 0
+CAPTURES = 0
+CHECKMATES = 0
+STALEMATES = 0
+CASTLING = 0
+PROMOTIONS = 0
 
 #==========================================General Pieces Mask=================================================
 

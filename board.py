@@ -57,7 +57,7 @@ class Board:
 
 #=====================CHECK DEF=====================
     def in_check_white(king_sq: int) -> bool:
-        if b.PAWN_MASK_EAT_BLACK[king_sq] & b.PIECE_DICT[b.BP]: return True
+        if b.PAWN_MASK_EAT_WHITE[king_sq] & b.PIECE_DICT[b.BP]: return True
         if b.KNIGHT_MASK[king_sq]        & b.PIECE_DICT[b.BN]: return True
         if mo.Bishop_attack(king_sq)     & (b.PIECE_DICT[b.BB] | b.PIECE_DICT[b.BQ]): return True
         if mo.Rook_attack(king_sq)       & (b.PIECE_DICT[b.BR] | b.PIECE_DICT[b.BQ]): return True
@@ -65,81 +65,84 @@ class Board:
         return False
 
     def in_check_black(king_sq: int) -> bool:
-        if b.PAWN_MASK_EAT_WHITE[king_sq] & b.PIECE_DICT[b.WP]: return True
+        if b.PAWN_MASK_EAT_BLACK[king_sq] & b.PIECE_DICT[b.WP]: return True
         if b.KNIGHT_MASK[king_sq]         & b.PIECE_DICT[b.WN]: return True
         if mo.Bishop_attack(king_sq)      & (b.PIECE_DICT[b.WB] | b.PIECE_DICT[b.WQ]): return True
         if mo.Rook_attack(king_sq)        & (b.PIECE_DICT[b.WR] | b.PIECE_DICT[b.WQ]): return True
         if b.KING_MASK[king_sq]           & b.PIECE_DICT[b.WK]: return True
         return False
 
+
+
     def Check_state(side: int) -> bool:
         return Board.in_check_white(b.WHITE_KING_SQ) if side == 0 else Board.in_check_black(b.BLACK_KING_SQ)
 
 
 
-    def Normal_attack(from_sq,to_sq,moved_piece,from_mask,to_mask,captured_piece):
-        
+    def Normal_attack(from_sq, to_sq, moved_piece, from_mask, to_mask, captured_piece):
+        #Update KING sq for check_state
         if moved_piece == b.WK:
             b.WHITE_KING_SQ = to_sq
         elif moved_piece == b.BK:
             b.BLACK_KING_SQ = to_sq
 
-        # --- update bitboards ---
+        #Update PIECE_DICT 
         b.PIECE_DICT[moved_piece] &= ~from_mask
         b.PIECE_DICT[moved_piece] |= to_mask
         if captured_piece != b.E:
             b.PIECE_DICT[captured_piece] &= ~to_mask
 
-        # --- update square map ---
+        #Update SQUARE_MAP
         b.SQUARE_MAP[to_sq]   = moved_piece
         b.SQUARE_MAP[from_sq] = b.E
 
-        # --- update occupancies incrementally ---
-        b.ALL_OCCUPANCY ^= from_mask
+        #Update ALL_OCCUPANCY
+        b.ALL_OCCUPANCY &= ~from_mask
         b.ALL_OCCUPANCY |= to_mask
 
-        # --- update color occupancies incrementally ---
-        if moved_piece <= b.WK:  # white moved
-            b.WHITE_OCCUPANCY ^= from_mask
-            b.WHITE_OCCUPANCY |= to_mask
-        else:                    # black moved
-            b.BLACK_OCCUPANCY ^= from_mask
-            b.BLACK_OCCUPANCY |= to_mask
-        # --- update color occupancies for captured piece ---
+
+        #Update OCCUPANCY on EMPTY condition
         if captured_piece != b.E:
             if captured_piece <= b.WK:
-                b.WHITE_OCCUPANCY ^= to_mask
+                b.WHITE_OCCUPANCY &= ~to_mask
             else:
-                b.BLACK_OCCUPANCY ^= to_mask
+                b.BLACK_OCCUPANCY &= ~to_mask
 
-    def Normal_undo(moved_piece,from_sq,to_sq,to_mask,from_mask,captured_piece):
+        #Update OCCUPANCY for WHITE and BLACK
+        if moved_piece <= b.WK:  
+            b.WHITE_OCCUPANCY &= ~from_mask
+            b.WHITE_OCCUPANCY |= to_mask
+        else:                    
+            b.BLACK_OCCUPANCY &= ~from_mask
+            b.BLACK_OCCUPANCY |= to_mask
+
+    
+
+    def Normal_undo(moved_piece, from_sq, to_sq, to_mask, from_mask, captured_piece):
+        # --- restore king square for check_state ---
         if moved_piece == b.WK:
             b.WHITE_KING_SQ = from_sq
         elif moved_piece == b.BK:
             b.BLACK_KING_SQ = from_sq
-
 
         # --- restore moved piece ---
         b.PIECE_DICT[moved_piece] &= ~to_mask
         b.PIECE_DICT[moved_piece] |= from_mask
         b.SQUARE_MAP[from_sq] = moved_piece
 
-        # --- restore captured piece ---
+        # --- restore captured piece if any ---
         if captured_piece != b.E:
             b.PIECE_DICT[captured_piece] |= to_mask
             b.SQUARE_MAP[to_sq] = captured_piece
         else:
             b.SQUARE_MAP[to_sq] = b.E
 
-        # --- restore occupancies ---
-        b.ALL_OCCUPANCY ^= to_mask
-        b.ALL_OCCUPANCY |= from_mask
-
-        if moved_piece <= b.WK:
-            b.WHITE_OCCUPANCY ^= to_mask
+        # --- restore occupancies incrementally ---
+        if moved_piece <= b.WK:  # white moved
+            b.WHITE_OCCUPANCY &= ~to_mask
             b.WHITE_OCCUPANCY |= from_mask
-        else:
-            b.BLACK_OCCUPANCY ^= to_mask
+        else:                    # black moved
+            b.BLACK_OCCUPANCY &= ~to_mask
             b.BLACK_OCCUPANCY |= from_mask
 
         if captured_piece != b.E:
@@ -148,30 +151,37 @@ class Board:
             else:
                 b.BLACK_OCCUPANCY |= to_mask
 
+        # --- always reconcile ALL_OCCUPANCY ---
+        b.ALL_OCCUPANCY = b.WHITE_OCCUPANCY | b.BLACK_OCCUPANCY
+
 
 #=====================MOVE EXECUTE DEF=====================
     def Move_attacker(from_sq: int, to_sq: int,flags = mr.MoveRecord.NONE_FLAG):
-        from_mask = 1 << from_sq
-        to_mask   = 1 << to_sq
-        old_ep = b.EN_PASSANT_SQ
-        moved_piece = b.SQUARE_MAP[from_sq]
-        captured_piece = b.SQUARE_MAP[to_sq]
+        from_mask       = 1 << from_sq
+        to_mask         = 1 << to_sq
+        
+        old_ep          = b.EN_PASSANT_SQ
+        
+        moved_piece     = b.SQUARE_MAP[from_sq]
+        captured_piece  = b.SQUARE_MAP[to_sq]
+        
 
-        # --- special flags ---
+        old_castling = (b.CASTLING_WK, b.CASTLING_WQ, b.CASTLING_BK, b.CASTLING_BQ)
+        ca.Piece_moved(from_sq,to_sq,moved_piece,captured_piece)
+
         if moved_piece == b.WK and from_sq == 4 and to_sq in (6, 2):
             flags = mr.MoveRecord.CASTLE_FLAG
         elif moved_piece == b.BK and from_sq == 60 and to_sq in (62, 58):
             flags = mr.MoveRecord.CASTLE_FLAG
+
         elif moved_piece == b.WP and to_sq == b.EN_PASSANT_SQ and captured_piece == b.E:
             flags = mr.MoveRecord.EN_PASSANT_FLAG
         elif moved_piece == b.BP and to_sq == b.EN_PASSANT_SQ and captured_piece == b.E:
             flags = mr.MoveRecord.EN_PASSANT_FLAG
-    
         elif moved_piece == b.WP and to_sq >= 56:
             flags = mr.MoveRecord.PROMOTION_FLAG
         elif moved_piece == b.BP and to_sq <= 7:
             flags = mr.MoveRecord.PROMOTION_FLAG
-        
         else:
             flags = mr.MoveRecord.NONE_FLAG
             Board.Normal_attack(from_sq,to_sq,moved_piece,from_mask,to_mask,captured_piece)
@@ -179,24 +189,28 @@ class Board:
         
         if flags == mr.MoveRecord.CASTLE_FLAG:
             ca.Castling_execute(moved_piece,flags,to_sq)
-        
         en.Update_en_square(moved_piece,from_sq,to_sq)
         if flags == mr.MoveRecord.EN_PASSANT_FLAG:
             en.En_passant_execute(moved_piece, flags,from_sq,to_sq)
         if flags == mr.MoveRecord.PROMOTION_FLAG:
-            pro.promotion_execute(from_sq,to_sq,from_mask,to_mask,moved_piece,b.PROMOTION_PIECE,flags,captured_piece)
+            pro.promotion_execute(from_sq, to_sq, from_mask, to_mask, moved_piece, b.PROMOTION_PIECE, captured_piece)
         
         
+
         
-        
-        
-        
-        
+
+
+
+
+
+
+
         # --- record of moves ---
-        Move_record = mr.MoveRecord(from_sq, to_sq, moved_piece, captured_piece, old_ep ,b.PROMOTION_PIECE,flags)
+        
+        Move_record = mr.MoveRecord(from_sq, to_sq, moved_piece, captured_piece, old_ep ,b.PROMOTION_PIECE,flags,castling_rights=old_castling)
         b.MOVE_HISTORY.append(Move_record)
         
-        return moved_piece, captured_piece
+        return moved_piece, captured_piece,flags
 
     def Undo_move():
         record = b.MOVE_HISTORY.pop()
@@ -206,25 +220,29 @@ class Board:
         b.EN_PASSANT_SQ =  record.en_sq
         from_mask = 1 << from_sq
         to_mask   = 1 << to_sq
-
         
+
+
+    
         if flags == mr.MoveRecord.CASTLE_FLAG:
             ca.Restore_castling(moved_piece, to_sq)
-            return 
+             
         elif flags == mr.MoveRecord.EN_PASSANT_FLAG:
             if moved_piece == b.WP:
                 en.en_passant_undo(from_sq, to_sq, 0)  # White undo
             else:  # b.BP
                 en.en_passant_undo(from_sq, to_sq, 1)  # Black undo
-            return
+            
         elif flags == mr.MoveRecord.PROMOTION_FLAG:
-            pro.promotion_undo(from_sq,to_sq,from_mask,to_mask,moved_piece,flags,record)
-            return
+            pro.promotion_undo(from_sq, to_sq, from_mask, to_mask, moved_piece, record)
+            
         else:
-            Board.Normal_undo(moved_piece,from_sq,to_sq,to_mask,from_mask,captured_piece)
-            return
+            Board.Normal_undo(moved_piece, from_sq, to_sq, to_mask, from_mask, captured_piece)
+            
 
 
+        b.CASTLING_WK, b.CASTLING_WQ, b.CASTLING_BK, b.CASTLING_BQ = record.castling_rights
+        
 
 
 
