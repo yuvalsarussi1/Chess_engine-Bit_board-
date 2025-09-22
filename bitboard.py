@@ -117,13 +117,14 @@ PROMOTION_DICT ={
 
 HALF_MOVE = 0
 FULL_MOVE = 0
-
+# --- PERFT data ---
 CHECKS = 0
 CAPTURES = 0
 CHECKMATES = 0
 STALEMATES = 0
 CASTLING = 0
 PROMOTIONS = 0
+EN_PASSANT_CAPTURE = 0
 
 #==========================================General Pieces Mask=================================================
 

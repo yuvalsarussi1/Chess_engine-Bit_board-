@@ -14,10 +14,23 @@ import perft as pe
 
 
 
-#see what changed in undo_move 
-#perft 5 broken (checkCaptures 	E.p. 	Castles 	Promotions 	Checks 	Discovery Checks 	Double Checks 	Checkmates )
 
-#after perft good work on preformance
+
+
+
+
+#castling fen in perft 5 is broken(short in moves) probably but in undo move  
+
+
+#========================INITIALIZE BOARD==================
+# side = 0 #white
+# Board.Fresh_reset()
+# Board.Update_occupancy()
+# pe.perft_test(max_depth=3)
+# input("Press Enter to continue...")
+
+
+
 
 Fen_choice = int(input("FEN? 1/0:"))
 if Fen_choice == 1:
@@ -34,7 +47,7 @@ else:
         print("White Turn") if side == 0 else print("Black Turn")                
         break
 Board.Update_occupancy()
-pe.perft_test(max_depth=4)
+pe.perft_test(max_depth=3)
 #========================Game_loop==================
 while True:
     if Board.Check_state(side):

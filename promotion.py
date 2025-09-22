@@ -4,6 +4,7 @@ import board as bo
 
 def promotion_execute(from_sq, to_sq, from_mask, to_mask, moved_piece, promotion_piece, captured_piece):
     # First: handle pawn move as a normal attack
+    # print("EXEC promotion:", from_sq, to_sq, moved_piece, "->", promotion_piece)
     bo.Board.Normal_attack(from_sq, to_sq, moved_piece, from_mask, to_mask, captured_piece)
 
     # Now replace pawn with promoted piece
@@ -24,9 +25,10 @@ def promotion_execute(from_sq, to_sq, from_mask, to_mask, moved_piece, promotion
 
 
 def promotion_undo(from_sq, to_sq, from_mask, to_mask, moved_piece, record):
+    
     promoted_piece = record.promotion_piece
     captured_piece = record.captured_piece
-
+    # print("UNDO promotion:", from_sq, to_sq, moved_piece,promoted_piece, "-> restored pawn")
     # Remove promoted piece
     b.PIECE_DICT[promoted_piece] &= ~to_mask
     b.SQUARE_MAP[to_sq] = b.E
@@ -57,6 +59,6 @@ def promotion_undo(from_sq, to_sq, from_mask, to_mask, moved_piece, record):
     b.ALL_OCCUPANCY |= from_mask
     if captured_piece != b.E:
         b.ALL_OCCUPANCY |= to_mask
-
+    
 
         

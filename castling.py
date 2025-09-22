@@ -148,6 +148,7 @@ def Restore_castling(moved_piece: int, to_sq: int):
         bo.Board.Normal_undo(b.BR, 56, 59, 1<<59, 1<<56, b.E)
 
 
+
 def castling_trigger(from_sq: int,to_sq: int,moved_piece: int):
     if moved_piece == b.WK and from_sq == 4 and to_sq == 6:
         Execute_castling(0, kingside=True)
@@ -158,9 +159,15 @@ def castling_trigger(from_sq: int,to_sq: int,moved_piece: int):
     elif moved_piece == b.BK and from_sq == 60 and to_sq == 58:
         Execute_castling(1, kingside=False)
 
-def Castling_execute(moved_piece, flags,to_sq):
+def Castling_execute(moved_piece, flags, to_sq):
     if moved_piece == b.WK:
-        ca.Execute_castling(0, kingside=(to_sq == 6))
-    else:
-        ca.Execute_castling(1, kingside=(to_sq == 62))
+        ca.Execute_castling(0, kingside=(to_sq == 6))  # g1
+        if to_sq == 2:                                # c1
+            ca.Execute_castling(0, kingside=False)
+    elif moved_piece == b.BK:
+        if to_sq == 62:                               # g8
+            ca.Execute_castling(1, kingside=True)
+        elif to_sq == 58:                             # c8
+            ca.Execute_castling(1, kingside=False)
+
 
