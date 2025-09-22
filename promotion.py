@@ -2,6 +2,15 @@ import bitboard as b
 import move_record as mr
 import board as bo
 
+# === explanation for promotion.py ===
+
+# This module handles the promotion of pawns in chess. When a pawn reaches the opposite end of the board,
+# it can be promoted to a more powerful piece (queen, rook, bishop, or knight).
+# The module includes functions to execute the promotion move and to undo it if necessary.
+
+#==========================================Promotion Functions=================================================
+
+# Execute the promotion move
 def promotion_execute(from_sq, to_sq, from_mask, to_mask, moved_piece, promotion_piece, captured_piece):
     # First: handle pawn move as a normal attack
     # print("EXEC promotion:", from_sq, to_sq, moved_piece, "->", promotion_piece)
@@ -20,15 +29,12 @@ def promotion_execute(from_sq, to_sq, from_mask, to_mask, moved_piece, promotion
         b.BLACK_OCCUPANCY &= ~to_mask
         b.BLACK_OCCUPANCY |= to_mask
 
-
-
-
-
+# Undo the promotion move
 def promotion_undo(from_sq, to_sq, from_mask, to_mask, moved_piece, record):
     
     promoted_piece = record.promotion_piece
     captured_piece = record.captured_piece
-    # print("UNDO promotion:", from_sq, to_sq, moved_piece,promoted_piece, "-> restored pawn")
+
     # Remove promoted piece
     b.PIECE_DICT[promoted_piece] &= ~to_mask
     b.SQUARE_MAP[to_sq] = b.E
@@ -54,7 +60,7 @@ def promotion_undo(from_sq, to_sq, from_mask, to_mask, moved_piece, record):
         else:
             b.BLACK_OCCUPANCY |= to_mask
 
-    # Always fix ALL_OCCUPANCY
+    # fix ALL_OCCUPANCY
     b.ALL_OCCUPANCY &= ~to_mask
     b.ALL_OCCUPANCY |= from_mask
     if captured_piece != b.E:

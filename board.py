@@ -1,11 +1,21 @@
 import bitboard as b
-import threats as th
-import utils as u
 import moves as mo
 import move_record as mr
 import castling as ca
 import en_passant as en
 import promotion as pro
+
+#=== explanation for board.py ===
+
+# This module defines the Board class, which represents the state of a chess game.
+# It includes methods for initializing the board, resetting it to the starting position,
+# checking for checks, executing and undoing moves, and printing the board state.
+# The Board class interacts with other modules such as bitboard, moves, castling, en_passant, and promotion
+# to manage the various aspects of chess gameplay.
+
+
+
+
 
 class Board:
     def __init__(self):
@@ -13,7 +23,7 @@ class Board:
 
 #=====================START BOARD AND PIECES DEF=====================
     @staticmethod
-    def Fresh_reset():
+    def Fresh_reset() -> None:
         for square_1 in range(8):
             #PIECE_DICT --> (P:1 << 8)
             b.PIECE_DICT[b.WP] |= (1 << (8 + square_1))
@@ -21,7 +31,7 @@ class Board:
             b.PIECE_DICT[b.WHITE_ROW1_PIECES[square_1]] |= (1 << square_1) 
             b.PIECE_DICT[b.BLACK_ROW1_PIECES[square_1]] |= (1 << (56 + square_1)) 
     @staticmethod
-    def Update_occupancy():
+    def Update_occupancy() -> None:
         #Creat the occupancy or update it
         global WHITE_OCCUPANCY,BLACK_OCCUPANCY,ALL_OCCUPANCY,PIECE_DICT
         b.WHITE_OCCUPANCY =  (b.PIECE_DICT[b.WP] | b.PIECE_DICT[b.WN] | b.PIECE_DICT[b.WB]|
@@ -36,7 +46,7 @@ class Board:
         """Check if a piece exists at the given bit index in the occupancy bitboard."""
         return (occupancy & (1 << square_num)) != 0
     
-    def print_board_list(lst, top_down=True):
+    def print_board_list(lst, top_down=True) -> None:
         rows = [lst[i:i+8] for i in range(0, len(lst), 8)]
         if top_down:
             rows = rows[::-1]
@@ -55,7 +65,7 @@ class Board:
         print(" ",col_labels)
 
 
-#=====================CHECK DEF=====================
+#===================== CHECK STATE =====================
     def in_check_white(king_sq: int) -> bool:
         if b.PAWN_MASK_EAT_WHITE[king_sq] & b.PIECE_DICT[b.BP]: return True
         if b.KNIGHT_MASK[king_sq]        & b.PIECE_DICT[b.BN]: return True
@@ -72,13 +82,11 @@ class Board:
         if b.KING_MASK[king_sq]           & b.PIECE_DICT[b.WK]: return True
         return False
 
-
-
     def Check_state(side: int) -> bool:
         return Board.in_check_white(b.WHITE_KING_SQ) if side == 0 else Board.in_check_black(b.BLACK_KING_SQ)
 
 
-
+#=====================NORMAL MOVE DEF=====================
     def Normal_attack(from_sq, to_sq, moved_piece, from_mask, to_mask, captured_piece):
         #Update KING sq for check_state
         if moved_piece == b.WK:
@@ -117,7 +125,7 @@ class Board:
             b.BLACK_OCCUPANCY |= to_mask
 
     
-
+#=====================NORMAL UNDO DEF=====================
     def Normal_undo(moved_piece, from_sq, to_sq, to_mask, from_mask, captured_piece):
         # --- restore king square for check_state ---
         if moved_piece == b.WK:
@@ -155,7 +163,17 @@ class Board:
         b.ALL_OCCUPANCY = b.WHITE_OCCUPANCY | b.BLACK_OCCUPANCY
 
 
-#=====================MOVE EXECUTE DEF=====================
+#=====================MOVE EXECUTE\UNDO DEF=====================
+   
+    # Execute a move and return details for undoing it
+    # from_sq, to_sq: source and destination squares (0-63)
+    # moved_piece: piece being moved
+    # Returns: (moved_piece, captured_piece, flags)
+    # flags indicate special move types (castling, en passant, promotion)
+    # Updates the board state accordingly
+    # Appends a MoveRecord to MOVE_HISTORY for undoing later
+
+
     def Move_attacker(from_sq: int, to_sq: int,flags = mr.MoveRecord.NONE_FLAG):
         from_mask       = 1 << from_sq
         to_mask         = 1 << to_sq
@@ -191,7 +209,7 @@ class Board:
             ca.Castling_execute(moved_piece,flags,to_sq)
         en.Update_en_square(moved_piece,from_sq,to_sq)
         if flags == mr.MoveRecord.EN_PASSANT_FLAG:
-            en.En_passant_execute(moved_piece, flags,from_sq,to_sq)
+            en.En_passant_execute(moved_piece,from_sq,to_sq)
         if flags == mr.MoveRecord.PROMOTION_FLAG:
             pro.promotion_execute(from_sq, to_sq, from_mask, to_mask, moved_piece, b.PROMOTION_PIECE, captured_piece)
         
@@ -225,13 +243,13 @@ class Board:
 
     
         if flags == mr.MoveRecord.CASTLE_FLAG:
-            ca.Restore_castling(moved_piece, to_sq)
+            ca.castling_undo(moved_piece, to_sq)
              
         elif flags == mr.MoveRecord.EN_PASSANT_FLAG:
             if moved_piece == b.WP:
-                en.en_passant_undo(from_sq, to_sq, 0)  # White undo
+                en.En_passant_undo(from_sq, to_sq, 0)  # White undo
             else:  # b.BP
-                en.en_passant_undo(from_sq, to_sq, 1)  # Black undo
+                en.En_passant_undo(from_sq, to_sq, 1)  # Black undo
             
         elif flags == mr.MoveRecord.PROMOTION_FLAG:
             pro.promotion_undo(from_sq, to_sq, from_mask, to_mask, moved_piece, record)

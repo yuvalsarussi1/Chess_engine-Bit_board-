@@ -1,19 +1,18 @@
 from board import *
 import bitboard as b
 import moves as mo
-def Coord_converter_index(coord: str) -> int: #change to enter both piece and target in one input
-    if len(coord) == 2:
-        file = ord(coord[0].lower()) - ord("a")
-        if (0 <= file <= 7) and (coord[1].isdigit()):   
-            rank = int(coord[1]) - 1                  
-            if (0 <= rank <= 7):
-                index = rank * 8 + file                    
-                return 1 << index
-            return False      
-        return False
-    return False
 
-def coord_converter_num(coord: str) -> int:
+#=== explanation for utils.py ===
+
+# This module provides utility functions for a chess engine that uses bitboards for board representation.
+# It includes functions for converting chess coordinates to bitboard indices, checking for friendly targets,
+# updating piece turn, validating pieces, changing sides, updating scores, and generating moves.
+# These functions facilitate various operations needed for move generation, validation, and game state management.
+# The module is designed to work seamlessly with other components of the chess engine, such as move generation and board management.
+
+#========================================== Utility Functions =================================================
+# Convert chess coordinate (e.g., 'e4') to bitboard index (0-63)
+def coord_converter_num(coord: str) -> int | bool:
     index = 0
     if len(coord) == 2:
         file = ord(coord[0].lower()) - ord("a")
@@ -26,6 +25,7 @@ def coord_converter_num(coord: str) -> int:
         return False 
     return False
 
+# Check if the target square contains a friendly piece
 def Check_for_friendly_target(square_num: int,target: int) -> bool:
     square_index = (1 << square_num)
     target_index = (1 << target)
@@ -38,8 +38,8 @@ def Check_for_friendly_target(square_num: int,target: int) -> bool:
      
     return True
 
-
-def Update_PIECES_TURN(side: bool):
+# Update the list of pieces for the side to move
+def Update_PIECES_TURN(side: bool) -> None:
     global PIECES_TURN
     if side == 0:
           b.PIECES_TURN = [b.WP,b.WR,b.WN,b.WB,b.WQ,b.WK]
@@ -47,43 +47,39 @@ def Update_PIECES_TURN(side: bool):
     if side == 1:
           b.PIECES_TURN = [b.BP, b.BR, b.BN, b.BB, b.BQ, b.BK]
     
+#check if the piece on the square belongs to the side to move
 def Valid_piece(square_num: int,side) -> bool:
      square_index = (1 << square_num)
-    #  print("check", b.WHITE_OCCUPANCY)
      if side == 0 and square_index & b.WHITE_OCCUPANCY:
           return True
      if side == 1 and square_index & b.BLACK_OCCUPANCY:
           return True
      else:    
         return False
-    
-def Side_pick(side):
+
+# Change side to move
+def Side_pick(side) -> int:
      if side == 0:
           return 0
      if side == 1:
           return 1
      else:
           return False
-     
-def Side_change(side):
+    
+# Change side to move
+def Side_change(side) -> int:
     if side == 0:
         new_side = 1
     if side == 1:
         new_side = 0
     return new_side
 
-def Score_change(to_sq: int,side: bool):#not working with en_passant 
-    piece = b.SQUARE_MAP[to_sq]
-    if side == 0:
-          b.WHITE_SCORE += b.PIECE_SCORES[piece]
-    if side == 1:
-          b.BLACK_SCORE += b.PIECE_SCORES[piece]
-
-def attacks_of_piece(piece, square):
+#attacks of piece
+def attacks_of_piece(piece, square) -> int:
     return mo.PIECE_ATTACKS[piece](square)
 
-
-def sanity_check(side):
+# Print the current board state for debugging
+def sanity_check(side) -> None:
     print("=== SANITY CHECK ===")
     
     # Side to move
@@ -128,8 +124,9 @@ def sanity_check(side):
         print("[ERROR] Black occupancy mismatch!")
 
     print("=== END CHECK ===\n")
-     
-def  Promotion_select(side):
+
+#promotion piece selection
+def  Promotion_select(side) -> None:
     while True:
         b.PROMOTION_PIECE = input("Choose promotion - (Q,R,N,B)")
         if b.PROMOTION_PIECE in ("Q","R","N","B") and side == 0:
@@ -142,8 +139,8 @@ def  Promotion_select(side):
         else:
              continue
 
-
-def Move_counter(moved_piece,captured_piece,side):
+# Update move counters and check for 50-move rule
+def Move_counter(moved_piece,captured_piece,side) -> int:
     if moved_piece in(b.WP,b.BP) or captured_piece != b.E:
         b.HALF_MOVE = 0
     else:

@@ -2,17 +2,27 @@ from board import *
 from _init_ import * 
 from utils import * 
 from moves import *
-import threats as th
 import bitboard as b
-import magic as m
 import legal_moves as ch
-import time
 import castling as ca
 import move_generate as mog
 import fen as fe
-import perft as pe
-import evaluations as ev
 import search_engine as se
+
+#=== explanation for player_vs_engine.py ===
+# This script facilitates a chess game between a human player and a chess engine.
+# It allows the player to choose their side (white or black) and enter moves in standard chess notation.
+# The engine uses a search algorithm to determine its moves. The game continues until a checkmate, stalemate, or draw condition is met.
+# The script also supports initializing the game from a FEN string for custom starting positions.
+
+
+## The main components of the script include:
+# - Side selection: The player can choose to play as white or black.
+# - Move input and validation: The player inputs their moves, which are validated for legality.
+# - Engine move generation: The engine calculates its moves using a search algorithm.
+# - Game state management: The script keeps track of the board state, checks for check/checkmate/stalemate, and updates the board after each move.
+# - Endgame conditions: The game ends when a player is checkmated, stalemated, or a draw condition is met.
+
 
 def Player_move(side):
     while True:
@@ -88,13 +98,7 @@ def Player_move(side):
                 break
         return side,moved_piece,captured_piece
         
-
-
-
-
-
-
-
+#========================= GAME LOOP =========================
 while True:
     Fen_choice = int(input("FEN? 1/0:"))
     if Fen_choice == 1:
@@ -115,7 +119,7 @@ while True:
     while True:
         #========================= ENGINE PLAY ==================
         if side == b.ENGINE_SIDE:
-            se.Search_engine_eval(3,side)
+            se.Search_engine_eval(4,side)
             print("Engine played")
             side = Side_change(side)
 

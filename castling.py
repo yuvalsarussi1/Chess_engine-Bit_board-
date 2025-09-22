@@ -5,6 +5,17 @@ import board as bo
 import castling as ca
 import move_record as mr
 
+# === explanation for castling.py ===
+
+# This module manages the castling move in chess, which involves moving the king and a rook simultaneously.
+# It includes functions to check if castling is permissible under the current game conditions,
+# execute the castling move, and undo the move if necessary.
+# The module also updates castling rights based on the movement of the king and rooks.
+
+#========================================== castling functions =================================================
+
+
+# piece moved - update castling rights
 def Piece_moved(from_sq: int,to_sq: int,moved_piece: int,captured_piece: int):
     if moved_piece not in (b.WK,b.WR,b.BK,b.BR): return False
     
@@ -34,8 +45,7 @@ def Piece_moved(from_sq: int,to_sq: int,moved_piece: int,captured_piece: int):
         if to_sq == 56: b.CASTLING_BQ = False
         if to_sq == 63: b.CASTLING_BK = False
 
-
-
+# undo piece moved - restore castling rights if needed
 def Undo_piece_moved(from_sq: int,moved_piece: int,flags):
     if flags != mr.MoveRecord.CASTLE_FLAG: return False
     if moved_piece not in (b.WK,b.WR,b.BK,b.BR): return False
@@ -54,8 +64,7 @@ def Undo_piece_moved(from_sq: int,moved_piece: int,flags):
     if moved_piece == b.BR and from_sq == 63:
         b.BLACK_RR_MOVE = 0
 
-
-
+# castling conditions for king side
 def castling_condition_King_side(square_num) -> bool:
     num = b.SQUARE_MAP[square_num]
     if num == b.WK:  
@@ -78,8 +87,7 @@ def castling_condition_King_side(square_num) -> bool:
 
     return False
 
-
-
+# castling conditions for queen side
 def castling_condition_Queen_side(square_num) ->bool:
     num = b.SQUARE_MAP[square_num]
     
@@ -103,8 +111,19 @@ def castling_condition_Queen_side(square_num) ->bool:
 
     return False
 
+# execute castling move
+def Castling_execute_1(moved_piece, flags, to_sq):
+    if moved_piece == b.WK:
+        ca.Castling_execute_2(0, kingside=(to_sq == 6))  # g1
+        if to_sq == 2:                                # c1
+            ca.Castling_execute_2(0, kingside=False)
+    elif moved_piece == b.BK:
+        if to_sq == 62:                               # g8
+            ca.Castling_execute_2(1, kingside=True)
+        elif to_sq == 58:                             # c8
+            ca.Castling_execute_2(1, kingside=False)
 
-def Execute_castling(side: int, kingside: bool):
+def Castling_execute_2(side: int, kingside: bool):
     if side == 0:  # White
         if kingside:
             # King e1 → g1
@@ -129,8 +148,8 @@ def Execute_castling(side: int, kingside: bool):
             # Rook a8 → d8
             bo.Board.Normal_attack(56, 59, b.BR, 1<<56, 1<<59, b.E)
 
-
-def Restore_castling(moved_piece: int, to_sq: int):
+# undo castling move
+def castling_undo(moved_piece: int, to_sq: int):
     if moved_piece == b.WK and to_sq == 6:  # White kingside
         bo.Board.Normal_undo(b.WK, 4, 6, 1<<6, 1<<4, b.E)
         bo.Board.Normal_undo(b.WR, 7, 5, 1<<5, 1<<7, b.E)
@@ -149,25 +168,5 @@ def Restore_castling(moved_piece: int, to_sq: int):
 
 
 
-def castling_trigger(from_sq: int,to_sq: int,moved_piece: int):
-    if moved_piece == b.WK and from_sq == 4 and to_sq == 6:
-        Execute_castling(0, kingside=True)
-    elif moved_piece == b.WK and from_sq == 4 and to_sq == 2:
-        Execute_castling(0, kingside=False)
-    elif moved_piece == b.BK and from_sq == 60 and to_sq == 62:
-        Execute_castling(1, kingside=True)
-    elif moved_piece == b.BK and from_sq == 60 and to_sq == 58:
-        Execute_castling(1, kingside=False)
-
-def Castling_execute(moved_piece, flags, to_sq):
-    if moved_piece == b.WK:
-        ca.Execute_castling(0, kingside=(to_sq == 6))  # g1
-        if to_sq == 2:                                # c1
-            ca.Execute_castling(0, kingside=False)
-    elif moved_piece == b.BK:
-        if to_sq == 62:                               # g8
-            ca.Execute_castling(1, kingside=True)
-        elif to_sq == 58:                             # c8
-            ca.Execute_castling(1, kingside=False)
 
 

@@ -1,8 +1,21 @@
 # import _init_
 import bitboard as b
-import random
+# import random (for fidding magic numbers)
+
+# ==== explanation of magic bitboards ====
+# A magic bitboard is a way to efficiently calculate the attack patterns of sliding pieces
+# (rooks and bishops) in chess. The idea is to use a "magic" number to transform the
+# occupancy of the board into an index that can be used to look up the attack pattern
+# in a precomputed table. This allows for very fast move generation, as it reduces
+# the need for complex calculations during gameplay.
+
+#the magic numbers are calculated using a brute-force method to find numbers that produce
+#unique indices for all possible blocker configurations for each square on the board.
+# These numbers are then used in conjunction with bitwise operations to quickly
+# determine the attack patterns of rooks and bishops.
 
 
+#========================================Creat magic numbers===========================================
 MAGIC_NUMBER_ROOK_LIST = [
     36029349996072992,        9259423098992599040,   756622329720602752,
     1224984115168739336,      720578140611616772,    432363405522239748,
@@ -53,13 +66,12 @@ MAGIC_NUMBER_BISHOP_LIST = [
     153158132279820416
 ]
 
-
-#========================================Creat relevent bit===========================================
 def bit_count(bb: int) -> int:
     return bin(bb).count("1")
-
-
+#========================================Creat relevent bit===========================================
+#Relevant bits are all the possible blocker pieces for each square
 def init_rook_relevant_bits():
+    
     global ROOK_RELEVANT_BITS
     ROOK_RELEVANT_BITS = [bit_count(b.ROOK_EXCLUDE_EDGES[sq]) for sq in range(64)]
 
@@ -67,9 +79,8 @@ def init_bishop_relevant_bits():
     global BISHOP_RELEVANT_BITS
     BISHOP_RELEVANT_BITS = [bit_count(b.BISHOP_EXCLUDE_EDGES[sq]) for sq in range(64)]
 
-#============================================================================================
-
 #========================================check the magic number for generate===========================================
+#after finding a magic number we need to check if its valid
 # MAGIC_ATTACKS_ROOK = [[] for i in range(64)]
 def Check_valid_magic_number_rook(magic_num: int,square: int):
     temp_list = {}
@@ -106,11 +117,13 @@ def Check_valid_magic_number_bishop(magic_num: int,square: int):
     # print("good magic")
     
     return magic_num
-#============================================================================================
+
+
 
 #========================================Creat magic attacks===========================================
+#create the magic attacks for each square and store them in a list
 MAGIC_ATTACKS_ROOK = [[] for i in range(64)]
-def Creat_magic_attacks(magic_num: int,square: int):
+def Creat_magic_attacks_rook(magic_num: int,square: int):
     bits = ROOK_RELEVANT_BITS[square]
     list_size = 1 << bits
     MAGIC_ATTACKS_ROOK[square] = [0] * list_size
@@ -129,7 +142,7 @@ def Creat_rook_attacks_all_squares():
         if magic_num == 0:
             print("no magic number")
             return False
-        check = Creat_magic_attacks(magic_num,square)
+        check = Creat_magic_attacks_rook(magic_num,square)
         if check is False:
             print("error creating magic attacks")
             return False
@@ -163,12 +176,14 @@ def Creat_bishop_attacks_all_squares():
             print("error creating magic attacks")
             return False
     return True
-#============================================================================================
 
 
 
 
 #========================================INIT ALL THE THINGS===========================================
+
+#this function is for fidding magic numbers
+
 # MAGIC_NUMBER_BISHOP_LIST = [0]*64
 # for square in range(64):
 #     for i in range(1_000_000):

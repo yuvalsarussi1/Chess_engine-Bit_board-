@@ -3,20 +3,26 @@ import move_generate as mog
 from board import *
 
 
+#=== explanation for legal_moves.py ===
+# This module is responsible for generating and validating legal moves in a chess game.
+# It includes functions to generate all possible moves for the current player, check for legal moves,
+# and handle special cases like pawn promotion. The module ensures that moves do not leave the player's king in check.
+# It works in conjunction with other modules like move_generate and board to maintain the game state and enforce chess rules.
+
+# Utility to iterate over bits in a bitboard
 def iter_bits(mask: int):
     while mask:
         lsb = mask & -mask
         yield lsb.bit_length() - 1   # directly compute index
         mask ^= lsb
 
+# Convert bit index to chess square notation (e.g., 0 -> 'a1', 63 -> 'h8')
 def index_to_square(index: int) -> str:
     file = chr((index % 8) + ord('a'))
     rank = str((index // 8) + 1)
     return file + rank
 
-
-
-
+# --- count all legal moves ---
 def Count_legal_moves(side):
     legal_moves = 0
     for from_sq,from_mask in mog.MOVES_DICT.items():
@@ -27,7 +33,6 @@ def Count_legal_moves(side):
             Board.Undo_move()
 
     return legal_moves
-
 
 # --- if at least 1 move is valid ---
 def Has_legal_move(side):
@@ -45,6 +50,7 @@ def Has_legal_move(side):
             Board.Undo_move()
     return False
 
+# --- check if at least 1 promotion move is valid ---
 def Promotion_generate(from_sq: int,to_sq: int,side) -> bool:
     promo_list = (b.WQ,b.WR,b.WN,b.WB) if side == 0 else (b.BQ,b.BR,b.BN,b.BB)
 
@@ -55,7 +61,6 @@ def Promotion_generate(from_sq: int,to_sq: int,side) -> bool:
             Board.Undo_move()
             return True
         Board.Undo_move()
-
 
 # --- debug count all moves ---
 def Promotion_generate_debug(from_sq: int,to_sq: int,side) -> int:
@@ -108,10 +113,6 @@ def Has_legal_move_debug(side):
 
     print(f"=== DEBUG: Found {len(legal_moves)} legal moves for side {side} ===")
     return legal_moves
-
-
-
-
 
 # --- list of moves ---
 def promotion_append(from_sq: int,to_sq: int,moved_piece,side,LIST) -> int:

@@ -1,13 +1,17 @@
 import board as bo
-import fen as fe
 import move_generate as mog
 import legal_moves as ch
 from utils import *
-from castling import ca
-import move_record as mr
 import evaluations as ev
 
+#=== explanation for search_engine.py ===
 
+# This module implements a search engine for a chess game using the minimax algorithm with alpha-beta pruning.
+# The Search_engine function recursively explores possible moves to a specified depth, evaluating the board state
+# at each leaf node. It aims to find the best move for the engine's side by maximizing its score while minimizing
+# the opponent's score. The Search_engine_eval function iteratively deepens the search, providing the best move found at each depth level.
+
+# example of search tree:
 #=====================================================================
 #                 White to move (MAX)                   legal_moves (legal_moves for the current side)
 #                /          |          \
@@ -20,6 +24,7 @@ import evaluations as ev
 
 
 
+# The engine uses evaluation functions from the evaluations module to assess board states
 def Search_engine(depth: int, side: int, ENGINE_SIDE: int,alpha=-999999, beta=999999) -> tuple[int, tuple]:
     if depth == 0:
         return ev.WHITE_EVAL - ev.BLACK_EVAL, None
@@ -78,8 +83,7 @@ def Search_engine(depth: int, side: int, ENGINE_SIDE: int,alpha=-999999, beta=99
 
     return best_score, best_move
 
-
-
+# execute the best move found by the search engine
 def Search_engine_eval(depth,side):
     b.ENGINE_SIDE = side
     best_move = None

@@ -1,33 +1,21 @@
+# ========================IMPORTS==================
 from board import *
 from _init_ import * 
 from utils import * 
 from moves import *
-import threats as th
 import bitboard as b
-import magic as m
 import legal_moves as ch
-import time
 import castling as ca
 import move_generate as mog
 import fen as fe
 import perft as pe
 
+#========================EXPLANATION==================
 
-
-
-
-
-
-
-#castling fen in perft 5 is broken(short in moves) probably but in undo move  
-
-
-#========================INITIALIZE BOARD==================
-# side = 0 #white
-# Board.Fresh_reset()
-# Board.Update_occupancy()
-# pe.perft_test(max_depth=3)
-# input("Press Enter to continue...")
+# This is a terminal-based chess game implementation using bitboards.
+# It allows players to choose sides, make moves, and checks for game states like check and checkmate.
+# The game supports FEN input for custom board setups and includes a perft test for move
+# generation performance analysis.
 
 
 

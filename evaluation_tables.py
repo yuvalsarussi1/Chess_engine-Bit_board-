@@ -1,4 +1,14 @@
 
+#=== explanation for evaluation_tables.py ===
+
+# This module defines evaluation tables for chess pieces, which 
+# are used to assess the positional value of each piece on the board.
+# Each piece type (pawn, knight, bishop, rook, queen, king) 
+# has a corresponding score table that assigns a value to each square on the chessboard.
+# These tables help the chess engine evaluate the strength of a position 
+# by considering not only the material value of the pieces but also their placement on the board.
+
+
 PAWN_SCORE_TABLE = [
 0,  0,  0,  0,  0,  0,  0,  0,
 50, 50, 50, 50, 50, 50, 50, 50,

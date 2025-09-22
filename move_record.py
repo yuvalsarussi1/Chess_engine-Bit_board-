@@ -1,6 +1,16 @@
-
-
 import bitboard as b
+
+# === explanation for move_record.py ===
+# This module defines classes to record chess moves and evaluations.
+# The MoveRecord class captures details of each move, including the starting and ending squares,
+# the piece moved, any captured piece, special move flags (like castling or promotion), and the en passant square.
+
+# The EvalRecord class stores the evaluation scores for both white and black players at a given point in the game.
+# These records are essential for implementing features like undoing moves and maintaining game state.
+# The module is designed to work with a chess engine that uses bitboards for efficient board representation and move generation.
+
+
+#==========================================Move Record Class=================================================
 class MoveRecord:
     NONE_FLAG = 0
     EN_PASSANT_FLAG = 1
@@ -17,19 +27,7 @@ class MoveRecord:
         self.promotion_piece = promotion_piece
         self.castling_rights = castling_rights
 
-        
-    def __repr__(self):
-        return (f"MoveRecord(from_sq={self.from_sq}, to_sq={self.to_sq}, moved_piece={self.moved_piece}, "
-                f"captured_piece={self.captured_piece}, promotion_piece={self.promotion_piece}, "
-                f"is_castling={self.is_castling}, en_passant_square={self.en_passant_square})")
-
-    
-class En_passant:
-    def __init__(self,R_cell,L_cell,condition):
-        self.R_cell = R_cell
-        self.L_cell = L_cell
-        self.codition = False
-
+#==========================================Evaluation Record Class=================================================
 class EvalRecord:
     def __init__(self,white_score,black_score):
         self.white_score = white_score

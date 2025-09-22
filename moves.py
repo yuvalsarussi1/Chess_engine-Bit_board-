@@ -1,9 +1,20 @@
 import bitboard as b
 import magic as m
 import castling as ca
-import en_passant as en
+
+# === explanation for moves.py ===
+
+# This module handles the generation and execution of chess moves.
+# It includes functions to determine possible moves for each piece type, taking into account the current board state,
+# and special moves like castling and en passant. The module uses bitboards for efficient representation
+# of the chessboard and pieces, and employs magic bitboard techniques for fast move calculations.
 
 #==========================================Pieces attack index return=================================================
+
+# Each function returns a bitboard representing the squares attacked or moved to by the piece on the given square.
+# The functions use precomputed bitboards and magic bitboard techniques for efficient move generation.
+
+
 def Pawn_attacks_eat_white(square_num: int) -> int:
     return b.PAWN_MASK_EAT_WHITE[square_num]
 def Pawn_walk_white(square_num: int) -> int:
@@ -15,8 +26,6 @@ def Pawn_double_white(square_num: int) -> int:
         if (one_step & ~b.ALL_OCCUPANCY) and (two_step & ~b.ALL_OCCUPANCY):
             return two_step
     return 0
-
-
 def Pawn_attacks_eat_black(square_num: int) -> int:
     return b.PAWN_MASK_EAT_BLACK[square_num]
 def Pawn_walk_black(square_num: int) -> int:
@@ -28,7 +37,6 @@ def Pawn_double_black(square_num: int) -> int:
         if (one_step & ~b.ALL_OCCUPANCY) and (two_step & ~b.ALL_OCCUPANCY):
             return two_step
     return 0
-
 
 def Pawn_en_passant_white(square_num: int) -> int:
         if b.EN_PASSANT_SQ == -1:return False    
@@ -44,7 +52,6 @@ def Pawn_en_passant_black(square_num: int) -> int:
 def Knight_attacks(square_num: int) -> int:
    return b.KNIGHT_MASK[square_num]
 
-
 def King_attack_no_castling(square_num: int) -> int:
     return b.KING_MASK[square_num]
 
@@ -55,7 +62,6 @@ def King_attack_white(square_num: int) -> int:
     if ca.castling_condition_Queen_side(square_num):
         mask |= (b.QUEEN_SIDE_CASTLING_MASK_WHITE)
     return mask
-
 def King_attack_black(square_num: int) -> int:
     mask = b.KING_MASK[square_num]
     if ca.castling_condition_King_side(square_num):
@@ -63,8 +69,6 @@ def King_attack_black(square_num: int) -> int:
     if ca.castling_condition_Queen_side(square_num):
         mask |= (b.QUEEN_SIDE_CASTLING_MASK_BLACK)
     return mask
-
-
 
 def Rook_attack(square_num: int) -> int:
     occ = b.ALL_OCCUPANCY & b.ROOK_EXCLUDE_EDGES[square_num]
@@ -77,6 +81,9 @@ def Bishop_attack(square_num: int) -> int:
 def Queen_attack(square_num: int) -> int:
     return Rook_attack(square_num) | Bishop_attack(square_num)
 #===========================================================================================
+
+# Arrays to hold the attack and move functions for each piece type
+# Each index corresponds to a piece constant defined in bitboard.py
 
 PIECE_ATTACKS = [lambda sq: 0] * 13
 PIECE_MOVES   = [lambda sq: 0] * 13
@@ -121,16 +128,16 @@ PIECE_MOVES[b.BR] = lambda sq: Rook_attack(sq)   & ~b.BLACK_OCCUPANCY
 PIECE_MOVES[b.BQ] = lambda sq: Queen_attack(sq)  & ~b.BLACK_OCCUPANCY
 PIECE_MOVES[b.BK] = lambda sq: King_attack_black(sq)   & ~b.BLACK_OCCUPANCY
 
-
+# Functions to get moves and attacks for a piece on a given square
 def Piece_move(from_sq: int):
     piece = b.SQUARE_MAP[from_sq]
     return PIECE_MOVES[piece](from_sq)
-
+# Function to get attacks for a piece on a given square
 def Piece_attack(from_sq: int):
     piece = b.SQUARE_MAP[from_sq]
     # print(PIECE_ATTACKS[piece](from_sq),"CHECK ATTACKS")
     return PIECE_ATTACKS[piece](from_sq)
-
+# Function to check if an attack is valid
 def Valid_attack(action: int, to_sq):
     target_index = (1 << to_sq)
     if action & target_index:

@@ -3,12 +3,20 @@ import bitboard as b
 import legal_moves as le
 from board import *
 
+#=== explanation for move_generate.py ===
+
+# This module generates all possible moves for the current player in a chess game.
+# It iterates through all pieces of the player whose turn it is, calculates their potential moves,
+# and stores these moves in a dictionary for easy access.
+
+
 MOVES_DICT = {}    
 def All_Move_generate():
+    # based on current turn, generate all possible moves for that side
     global MOVES_DICT
     MOVES_DICT = {}   
-    for sym in b.PIECES_TURN:                               # List of pieces for spacific turn
-        piece_mask = b.PIECE_DICT[sym]                  # Coords based on symbol(can be more then one)
+    for sym in b.PIECES_TURN:                               
+        piece_mask = b.PIECE_DICT[sym]                  
         while piece_mask:
             lsb = piece_mask & -piece_mask
             sq = lsb.bit_length() - 1

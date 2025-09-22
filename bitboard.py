@@ -1,23 +1,18 @@
 
-BIT_BOARD = [None,None,None,None] 
-#Start occupancy squars
-BIT_BOARD[0] =0xff00              #WHITE_PAWN
-BIT_BOARD[1] =0xff000000000000    #BLACK_PAWN
-BIT_BOARD[2] =0xff                #WHITE_FIRST_ROW
-BIT_BOARD[3] =0xff00000000000000  #BLACK_FIRST_ROW
 
-pieces = ["P", "N", "B", "R", "Q", "K","p", "n", "b", "r", "q", "k"]
-#Piece that hold all pieces squares
+# === explanation for bitboard.py ===
+
+# This module defines the core data structures and constants for a chess engine using bitboards.
+# It includes definitions for pieces, board representation, move history, evaluation scores,
+# and various bitboard masks for piece movement and attack patterns.
 
 
-E = 2
+
+
+#==========================================Global Variables=================================================
 E, WP, WN, WB, WR, WQ, WK, BP, BN, BB, BR, BQ, BK = range(13)
 
-PIECE_BITBOARDS = [0] * 13
-
-
 MOVE_HISTORY = []
-MOVE_RECORD = []
 EVAL_HISTORY = []
 ENGINE_SIDE = 0
 
@@ -32,18 +27,10 @@ WHITE_OCCUPANCY = 0
 BLACK_OCCUPANCY = 0
 ALL_OCCUPANCY = 0
 
-CASTLING_WHITE_KING_SIDE = 0x60
-CASTLING_WHITE_QUEEN_SIDE = 0xe
-CASTLING_BLACK_KING_SIDE = 0x6000000000000000
-CASTLING_BLACK_QUEEN_SIDE = 0xe00000000000000
-
 CASTLING_WK = True
 CASTLING_WQ = True
 CASTLING_BK = True
 CASTLING_BQ = True
-
-
-
 
 WHITE_KING_MOVE = 0
 BLACK_KING_MOVE = 0
@@ -52,18 +39,13 @@ WHITE_LR_MOVE = 0
 BLACK_RR_MOVE = 0
 BLACK_LR_MOVE = 0
 
-# White castling empty squares
 WHITE_KINGSIDE_EMPTY   = (1 << 5) | (1 << 6)           
 WHITE_QUEENSIDE_EMPTY  = (1 << 1) | (1 << 2) | (1 << 3) 
 
-# Black castling empty squares
 BLACK_KINGSIDE_EMPTY   = (1 << 61) | (1 << 62)          
 BLACK_QUEENSIDE_EMPTY  = (1 << 57) | (1 << 58) | (1 << 59) 
 
 EN_PASSANT_SQ = -1
-
-LIGHT_SQUARE = 0x55aa55aa55aa55aa
-DARK_SQUARE = 0xaa55aa55aa55aa55
 
 SQUARE_MAP = [
     WR, WN, WB, WQ, WK, WB, WN, WR,   # 0–7   White back rank
@@ -119,7 +101,7 @@ PROMOTION_DICT ={
 
 HALF_MOVE = 0
 FULL_MOVE = 0
-# --- PERFT data ---
+#==========================================Data for Perft check=================================================
 CHECKS = 0
 CAPTURES = 0
 CHECKMATES = 0
@@ -195,8 +177,6 @@ def init_Pawn_mask():
             if x < 7:
                 PAWN_MASK_EAT_BLACK[num] |= (1 << ((y-1)*8 + (x+1)))
         
-
-
 def init_Pawn_enpassant_mask():
     for num in range(64):
         x = num % 8
@@ -262,7 +242,7 @@ def init_Queen_mask():
 
 #==========================================Exclude Edges Pieces Mask=================================================
 
-"""Same as piece mask but without the edges"""
+"""Same as piece mask but without the edges (only for sliding pieces)"""
 
 ROOK_EXCLUDE_EDGES = [0]*64
 def init_Rook_exclude_edges():
