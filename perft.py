@@ -14,20 +14,6 @@ import move_record as mr
 "4k3/5P2/8/8/8/8/8/4K3 w - - 0 1" # promotion
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 def perft(depth, side):
     if depth == 0:
         return 1

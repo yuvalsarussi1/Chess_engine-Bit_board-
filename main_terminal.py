@@ -155,3 +155,7 @@ while True:
     half_moves = Move_counter(moved_piece,captured_piece,side)
     if half_moves == 75:
         break
+
+
+
+

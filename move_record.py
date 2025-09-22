@@ -30,4 +30,9 @@ class En_passant:
         self.L_cell = L_cell
         self.codition = False
 
+class EvalRecord:
+    def __init__(self,white_score,black_score):
+        self.white_score = white_score
+        self.black_score = black_score
+
 
