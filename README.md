@@ -21,6 +21,14 @@ The banner above shows an ASCII-style digital chessboard — a nod to how the ga
 ---
 
 ## Usage
-Run perft test:
+Run one of the following commands:
+
 ```bash
+# 1. Perft Test (move generation validation)
+python main_terminal.py
+
+# 2. Play vs Engine (Human vs AI)
+python player_vs_engine.py
+
+# 3. Play PvP (Human vs Human)
 python main_terminal.py
