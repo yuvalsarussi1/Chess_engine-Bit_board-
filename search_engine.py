@@ -13,13 +13,13 @@ import evaluations as ev
 
 # example of search tree:
 #=====================================================================
-#                 White to move (MAX)                   legal_moves (legal_moves for the current side)
+#                 White to move (MAX)                   depth == 3 
 #                /          |          \
-#           Move A        Move B          Move C        depth == 1 (leafs of 1)
+#           Move A        Move B          Move C        depth == 2 
 #          /    \         /    \         /     \        
-#         A1    A2       B1    B2       C1     C2       depth == 2 (leafs of 2)
+#         A1    A2       B1    B2       C1     C2       depth == 1
 #        / \    / \     / \    / \     / \    /  \
-#       5   7  3   2   8   6  4   9   1   0  7    2     depth == 3 (leafs of 3)
+#       5   7  3   2   8   6  4   9   1   0  7    2     depth == 0 
 #=====================================================================
 
 
